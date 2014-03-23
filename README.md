@@ -1,4 +1,4 @@
 simmn
 =====
 
-Social Interaction Model with Multiple Networks
+Social Interaction Model with Multiple Endogenous Networks
