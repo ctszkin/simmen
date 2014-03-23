@@ -1,0 +1,5 @@
+useDynLib(simmen)
+import(RcppEigen)
+import(RcppArmadillo)
+importFrom(Rcpp, evalCpp)
+exportPattern("^[[:alpha:]]+")
