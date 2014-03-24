@@ -1,311 +1,36 @@
-# #' genPairwiseIndex 
-# #' @name genPairwiseIndex
-# #' @aliases genPairwiseIndex
-# #' @title genPairwiseIndex
-# #' @param n
-# #' @return data.frame
-# #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
-# #' @keywords internal 
-# #' @export
-# genPairwiseIndex = cmpfun(function(n){
-#   # i<- foreach( i=2:n,.combine=c ) %do% seq(from=i,to=n)
-#   i = unlist(lapply(2:n, seq, to=n))
-#   j = rep(1:(n-1),times=(n-1):1)
-#   cbind(i,j)
-# })
+#' @import Rcpp RcppEigen RcppArmadillo Jmisc SESHK2011 MASS foreach mvtnorm parallel maxLik plyr truncnorm Matrix MCMCpack Formula
+NULL
 
-
-# #' getPairwiseFriendshipData 
-# #' @name getPairwiseFriendshipData
-# #' @aliases getPairwiseFriendshipData
-# #' @title getPairwiseFriendshipData
-# #' @param network_data network_data
-# #' @param network_formation_formula network_formation_formula
-# #' @return A data.frame consist of the estimates.
-# #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
-# #' @keywords internal 
-# #' @export
-# getPairwiseFriendshipData<-cmpfun(function(network_data,network_formation_formula){
-#   data<-network_data$data
-#   n <- nrow(data)
-#   require_variable <-unique(sub("friends_","",all.vars(network_formation_formula)))
-
-#   require_variable <- setdiff(require_variable,".")
-
-#   data<-data[require_variable]
-  
-#   pairwise_index = genPairwiseIndex(n)
-
-#   i = pairwise_index[,1]
-#   j = pairwise_index[,2]
-  
-#   name_of_self_data <- names(data)
-#   name_of_friends_data <- paste("friends_",name_of_self_data,sep="")
-  
-#   self_data <- data.frame(data[i,])
-  
-#   friends_data <- data.frame(data[j,])
-#   names(self_data)<-name_of_self_data
-#   names(friends_data)<-name_of_friends_data
-  
-#   self_data_matrix <- model.matrix(network_formation_formula,cbind(self_data,friends_data))
-
-#   names(friends_data)<-name_of_self_data
-#   names(self_data)<-name_of_friends_data
-  
-#   friends_data_matrix <- model.matrix(network_formation_formula,cbind(self_data,friends_data))
-
-#   D<-network_data$network_matrix_list
-#   response_self = sapply(D, function(x) x[lower.tri(x)] )
-#   response_friends = sapply(D, function(x) t(x)[lower.tri(t(x))] )
-
-#   response_self=!!response_self
-#   response_friends=!!response_friends
-
-#   list(response_self=response_self, response_friends=response_friends,self_data_matrix=self_data_matrix,friends_data_matrix=friends_data_matrix)
-# })
-
-
-
-# #' genPairwiseHobbyData 
-# #' @name genPairwiseHobbyData
-# #' @aliases genPairwiseHobbyData
-# #' @title genPairwiseHobbyData
-# #' @param H H
-# #' @return a vector
-# #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
-# #' @keywords internal 
-# #' @export
-# genPairwiseHobbyData<-cmpfun(function(H){
-#   tHH<-tcrossprod(H)
-#   # stopifnot(nrow(tHH)==ncol(tHH))
-#   n<-nrow(tHH)
-
-#   index<-genPairwiseIndex(n)
-#   index2= (index[,1]-1) * n + index[,2]
-
-#   tHH[index2]
-# })
-
-
-# #' generateWeighting 
-# #' @name generateWeighting
-# #' @aliases generateWeighting
-# #' @title generateWeighting
-# #' @param D a network matrix
-# #' @return weighting matrix
-# #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
-# #' @keywords internal 
-# #' @export
-# generateWeighting<-cmpfun(function(D){
-#   W<-D/rowSums(D)
-#   W[is.nan(W)]<-0
-#   W
-# })
-
-# prepareData <- function (.raw_data, .spec, .school ){
-
-#     # .hobby <- match.arg(.hobby, several.ok = TRUE)
-#     # .school <- match.arg(.school, several.ok = TRUE)
-#     if ( missing(.school) ) {
-#       out <- foreach(i = .spec$school_name, .combine = c) %do% {
-#         prepareData(.raw_data=.raw_data, .school = i, .spec=.spec)
-#       }
-#       return(out)
-#     }
-
-#     data_wide <- getDataWide(.raw_data, .school)
-
-#     network_matrix_list = 
-#     lapply(.spec$network_info_list, function(x){
-#       network_matrix1 = getNetwork(.raw_data, .school, x$definition[1])
-#       network_matrix2 = getNetwork(.raw_data, .school, x$definition[2])
-#       out = x$process_network(network_matrix1, network_matrix2, data_wide)
-#       out
-#     })
-
-#     drop_case_id = .spec$findDropCaseID(data_wide, network_matrix_list)
-
-
-#     data_wide <- getDataWide(.raw_data, .school, drop_case_id)
-
-#     network_matrix_list = 
-#     lapply(.spec$network_info_list, function(x){
-#       network_matrix1 = getNetwork(.raw_data, .school, x$definition[1], .drop_by_case_id=drop_case_id)
-#       network_matrix2 = getNetwork(.raw_data, .school, x$definition[2], .drop_by_case_id=drop_case_id)
-#       # out = process_network_function_example(network_matrix1, network_matrix2, data_wide)
-#       out = x$process_network(network_matrix1, network_matrix2, data_wide)
-#       out
-#     })
-
-
-
-#     H <- foreach(i = .spec$hobby, .combine = c) %do% {
-#         out <- list(getHobby(.raw_data, .school, i, drop_case_id))
-#         names(out) <- i
-#         out
-#     }
-
-#     network_name = sapply(.spec$network_info_list, "[[", "name")
-
-#     group_index = list(id=which( .school == .spec$school_name ), all=length(.spec$school_name))
-
-#     # degree = sapply(network_matrix_list, rowSums)
-
-#     # colnames(degree) = paste0(    network_name = sapply(.spec$network_info_list, "[[", "name") , "_degree")
-
-#     # data_wide= cbind(data_wide, degree)
-
-
-#     data_wide = cbind(data_wide, .spec$genNetworkStatistics(network_matrix_list) )
-
-
-#     out <- list(network_matrix_list = network_matrix_list, data = data_wide, H = H, network_name=network_name,group_index=group_index)
-#     out <- list(out)
-#     names(out) <- .school
-#     return(out)
-# }
-
-
-
-
-
-
-
-# extractData <- cmpfun(function(spec, data){
-    
-#   # source("model_spec.r")
-#   formula = spec$formula
-#   network_formation_formula = Formula(spec$network_formation_formula)
-
-  
-#   f1 = formula(network_formation_formula,rhs=1)
-
-#   ## if there is fixed effect, take out the intercept
-#   if ( !is.null(spec$network_formation_fixed_effect) && spec$network_formation_fixed_effect ){
-#     f1 = update(f1, ~.+-1)
-#   }
-
-#   other_network_variables<-NULL
-#   use_network_variable<-FALSE
-#   if (length(network_formation_formula)[2]==2){
-#     use_network_variable<-TRUE
-#     f2<-formula(network_formation_formula,rhs=2)
-#     other_network_variables<-attr(terms(f2),"term.labels")
-#   }
-#   H_name <-  attr(terms(f2),"term.labels")
-  
-#   out<-getPairwiseFriendshipData(data,f1)
-#   out$formula = formula
-#   out$network_formation_formula = network_formation_formula
-
-
-#   if (length(network_formation_formula)[2]==2){
-#     H_pair<-sapply(data$H[H_name],genPairwiseHobbyData)
-#     out$self_data_matrix<-cbind(out$self_data_matrix,H_pair)
-#     out$friends_data_matrix<-cbind(out$friends_data_matrix,H_pair)
-#   }
-  
-#   ## generate dummy matrix
-#   if ( !is.null(spec$network_formation_fixed_effect) && spec$network_formation_fixed_effect ){
-#     nn = NROW(out$self_data_matrix)
-#     dummy_matrix = matrix(0, nrow=nn, ncol = data$group_index$all)
-#     dummy_matrix[,data$group_index$id] = 1
-
-#     colnames(dummy_matrix) = spec$school_names
-
-#     out$self_data_matrix = cbind(dummy_matrix,out$self_data_matrix)
-#     out$friends_data_matrix = cbind(dummy_matrix,out$friends_data_matrix)
-#   }
-
-#   # TODO: add seat assignment here
-#   # out$response1 <- as.logical(out$response)
-#   # out$response <- list(response1=out$response1)
-  
-#   # if(!single_network){
-#   #   out$response2 <- as.logical(out2$response)
-#   #   out$response$response2 = out$response2
-#   # }
-
-# # single network
-#   out$D_list = data$network_matrix_list
-#   out$W_list = lapply(out$D_list, generateWeighting)
-
-#   y_x_wx = getXandWX(formula,data)
-#   out$y = y_x_wx$y
-#   out$x = y_x_wx$x
-#   out$wx = y_x_wx$wx
-#   out$wy = y_x_wx$wy
-#   out$x_wx = y_x_wx$X
-
-#   out$n = length(out$y)
-#   out$k_x_wx = ncol(out$x_wx)
-#   out$k_gamma = ncol(out$self_data_matrix)
-
-#   out$group_index = genPairwiseIndex(length(out$y))
-#   out$network_name = data$network_name 
-
-#   return(out)
-# })
-
-
-
-# tic <- function(){
-#   assign(".time", Sys.time(), envir= .GlobalEnv)
-# }
-
-# toc <- function(){
-#   # as.numeric(Sys.time() - .time, units = "secs")
-#   print(Sys.time() - .time)
-# }
-
-## should put this in Jmisc
-exportAllFunction <- function(cl, envir=.GlobalEnv){
-  all_stuff = ls(envir=envir )
-  is_fun = sapply(lapply(all_stuff,get), is.function)
-  clusterExport(cl,all_stuff[is_fun])
+extractTail = function(x, tail=0){
+  if (tail==0){
+    return(x)
+  }
+  if( abs(tail) < 1){
+    tail= round( tail*nrow(x) )
+  }
+  tail(x,tail)
 }
+
+computeSummaryTable = function(x, tail){
+  if (!is.matrix(x)){
+    x= getParameterMatrix(x,tail)
+  }
+  # x = extractTail(x, tail)
+
+  mean = round(colMeans(x),6)
+  sd = round(apply(x,2,sd),6)
+  out = cbind(mean,sd)
+  name = rownames(out)
+  generateSignificance(out,name)
+}
+
+
+
+getParameterMatrix = function(x,...) UseMethod("getParameterMatrix", x)
 
 dnorm.diff = function(x, y, log=TRUE){
   dnorm(x,log=log) - dnorm(y,log=log)
 }
-
-# genDataMatrix = cmpfun(function(data, any_wx = TRUE){    
-#   Y = unlist( sapply(data, function(z) z$y ) )
-#   WY = do.call( rbind, lapply(data, "[[", "wy") )
-
-#   if (any_wx){
-#     X = do.call(rbind, lapply(data, function(z) z$x_wx ))
-#   } else {
-#     X = do.call(rbind, lapply(data, function(z) z$x ))
-#   }
-
-#   n_vector = sapply(data, function(z) z$n )
-#   X = demean(X)
-#   Y = demean(Y)
-#   WY = demean(WY)
-
-#   W_list = lapply(data, "[[", "W_list")
-
-#   list(
-#     Y = Y,
-#     X = X,
-#     WY = WY,
-#     W_list = W_list,
-#     n_vector = n_vector
-#   )
-# })
-
-# genNetworkData = cmpfun(function(data){
-#   lapply(data, function(x){
-#     location_index1 = lapply(1:x$n, function(z){ which(x$group_index[,1] == z) })
-#     location_index2 = lapply(1:x$n, function(z){ which(x$group_index[,2] == z) })
-#     location_index_all = lapply(1:x$n, function(z){ c(location_index1[[z]], location_index2[[z]])} )
-#     list(location_index1=location_index1,location_index2=location_index2,location_index_all=location_index_all)
-#   })
-# })
-
-
 
 addStar = function(x){
   x$star 
@@ -349,23 +74,6 @@ commandArgsParser = function(){
 genUniqueID = function(){
   format(Sys.time(), "%y%m%d%H%M%S") %+% "_" %+% as.character(round(runif(1)*10000000))
 }
-
-# genModelData = cmpfun(function(.spec, save=FALSE){
-#   if (class(.spec)!="SESHK_Spec")
-#     stop("spec must be an SESHK_Spec object")
-
-#    raw_data<-readSeshkNetwork(.version = "../../" %+% .spec$data_version %+% "/")
-
-#    data = prepareData(.raw_data=raw_data, .spec=.spec )
-
-#    out = lapply(data, extractData, spec=.spec)
-   
-#   if (save){
-#     cat("Saving data to model_data.rData\n")
-#     save(out,file="model_data.rData")
-#   }
-#   return(out)
-# })
 
 betterTable = function(x){
   name = rownames(x)
@@ -580,21 +288,6 @@ updateTau = function(tau, update_rate, lower_bound=0.3, upper_bound=0.4, optim_r
   }
   tau
 }
-
-
-# updateTau = cmpfun(function(tau,update_rate, less_update=FALSE){
-#   for ( j in 1:length(tau)){
-#     adjust_rate = update_rate[[j]] / 0.3
-#     if ( less_update){
-#       to_update = (tau[[j]] < 0.25)  | (tau[[j]] > 0.4)
-#       tau[[j]][to_update] =  tau[[j]][to_update] * adjust_rate[to_update]
-#     } else {
-#       tau[[j]] = tau[[j]] * adjust_rate
-#       tau[[j]] = ifelse(tau[[j]]==0, 0.001, tau[[j]])
-#     }
-#   }
-#   tau
-# })
 
 # mean and var of i given j, a is the demean value of j
 find_normal_conditional_dist = function(a, i, j, Sigma){
