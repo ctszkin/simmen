@@ -184,7 +184,7 @@ genLogDetGamma = function(W_list, lambda){
     out = out - lambda[i] * W_list[[i]]
   }
   diag(out) = 1
-  determinant(out, log=TRUE)$modulus
+  determinant(out, logarithm=TRUE)$modulus
 }
 
 
