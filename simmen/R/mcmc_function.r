@@ -75,17 +75,6 @@ metropolis2 = function(beta_previous, tau, likelihoodFunction, prior_type="norma
 
 }
 
-extractTail = function(x, tail=0){
-  if (tail==0){
-    return(x)
-  }
-  if( abs(tail) < 1){
-    tail= round( tail*nrow(x) )
-  }
-  tail(x,tail)
-}
-
-getParameterMatrix = function(x,...) UseMethod("getParameterMatrix", x)
 
 
 findplotIndex = function(x){
@@ -95,19 +84,6 @@ findplotIndex = function(x){
   out = max(max(which(index)))+1
 
   return(c(out,out+1))
-}
-
-computeSummaryTable = function(x, tail){
-  if (!is.matrix(x)){
-    x= getParameterMatrix(x,tail)
-  }
-  # x = extractTail(x, tail)
-
-  mean = round(colMeans(x),6)
-  sd = round(apply(x,2,sd),6)
-  out = cbind(mean,sd)
-  name = rownames(out)
-  generateSignificance(out,name)
 }
 
 
