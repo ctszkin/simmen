@@ -1,3 +1,15 @@
+#' Description loglikelihood_network_formation
+#' @name loglikelihood_network_formation
+#' @aliases loglikelihood_network_formation
+#' @title loglikelihood_network_formation
+#' @param y indicator of whether i and j is connected
+#' @param x1 variables of i 
+#' @param x2 variables of j
+#' @param delta parameters
+#' @param y_not complement of y
+#' @return value of log likelihood
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 loglikelihood_network_formation = function(y, x1, x2, delta, y_not){
   if (missing(y_not))
     y_not = !y
@@ -9,6 +21,396 @@ loglikelihood_network_formation = function(y, x1, x2, delta, y_not){
   }
   return(out)
 }
+
+#' Description lik_grad_single_network_formation
+#' @name lik_grad_single_network_formation
+#' @aliases lik_grad_single_network_formation
+#' @title lik_grad_single_network_formation
+#' @param y indicator of whether i and j is connected
+#' @param x1 variables of i 
+#' @param x2 variables of j
+#' @param delta parameters
+#' @return value of gradient of log likelihood
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+lik_grad_single_network_formation = function(y, x1, x2, delta){
+  R1 = x1 %*% delta
+  R2 = x2 %*% delta
+
+  pi = pnorm(R1)
+  pj = pnorm(R2)
+  di = dnorm(R1)
+  dj = dnorm(R2)
+  p = pi * pj
+
+  f =  (y-p) / (p* (1-p)) 
+  f[is.nan(f)] = 0
+
+  out =  as.vector( f  ) * (as.vector(pj * di) * x1  + as.vector(pi *dj) * x2 )
+  as.vector(colSums(out))
+}
+
+#' Description drawYstar
+#' @name drawYstar
+#' @aliases drawYstar
+#' @title drawYstar
+#' @param y indicator of whether i and j is connected
+#' @param ystar_other latent value of j
+#' @param mean x*delta
+#' @param y_not complement of y
+#' @param sd sd of the error
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+drawYstar = function(y, ystar_other, mean, y_not=!y, sd=1){
+
+  ystar_other_positive = ystar_other>=0  
+
+  index_case1 = y
+  index_case2 = as.logical(y_not * ystar_other_positive)
+  index_case3 = as.logical(y_not * !ystar_other_positive)
+
+  n1=sum(index_case1)
+  n2=sum(index_case2)
+  n3=sum(index_case3)
+  
+  ystar_new = rep(NA, length(y))
+
+  if (n1>0)
+    ystar_new[index_case1] = rtruncnorm(1,a=0,b=Inf, mean=mean[index_case1],sd=sd)  
+  if (n2>0)
+    ystar_new[index_case2] =rtruncnorm(1,a=-Inf,b=0,mean=mean[index_case2],sd=sd) 
+  if (n3>0)
+    ystar_new[index_case3] = mean[index_case3] +rnorm(n3,sd=sd)
+
+  ystar_new
+}
+
+#' Description network_formation
+#' @name network_formation
+#' @aliases network_formation
+#' @title network_formation
+#' @param data data
+#' @param method Estimation method, either "maxLik" or "mcmc". Default is "maxLik"
+#' @param ... others argument. See \link{network_formation.mcmc}
+#' @return network_formation object
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+network_formation = function(data , method=c("maxLik","mcmc"), ...){
+  method = match.arg(method)
+  switch(method,
+    maxLik = network_formation.maxLik(data,...),
+    mcmc = network_formation.mcmc(data,...) 
+  )
+}
+
+#' Description network_formation.maxLik
+#' @name network_formation.maxLik
+#' @aliases network_formation.maxLik
+#' @title network_formation.maxLik
+#' @param data data
+#' @param ... not used
+#' @return network_formation object
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+network_formation.maxLik = function(data,...){
+  tic()
+
+  self_data_matrix = do.call(rbind, lapply(data , function(z) z$self_data_matrix))
+  friends_data_matrix = do.call(rbind, lapply(data , function(z) z$friends_data_matrix))
+
+  y = do.call(rbind, lapply(data, function(z) z$response_self))
+
+  number_of_network = ncol(y)
+  network_name = data[[1]]$network_name
+
+  out = vector("list",number_of_network)
+  summary_table = vector("list",number_of_network)
+
+  for (i in 1:number_of_network){
+    yy = y[,i]
+    yy_not = !yy
+    start = glm(yy~self_data_matrix-1, family=binomial(link="probit"))$coef
+
+    out[[i]] = maxLik(function(z, ...) loglikelihood_network_formation(delta=z, ...) , start=start ,  x1=self_data_matrix, x2=friends_data_matrix, y=yy, y_not=yy_not , grad= lik_grad_single_network_formation, method="BFGS")
+
+      summary_table[[i]] = generateSignificance(summary(out[[i]])$estimate[,1:2])
+      rownames(summary_table[[i]]) = network_name[i] %+% "_" %+%colnames(self_data_matrix)
+  }
+
+  summary_table = do.call(rbind,summary_table)
+  toc()
+  out2 = list(out=out, summary_table=summary_table)
+  class(out2) = "network_formation.maxLik"
+  out2
+}
+
+
+
+#' Description network_formation.mcmc
+#' @name network_formation.mcmc
+#' @aliases network_formation.mcmc
+#' @title network_formation.mcmc
+#' @param data data
+#' @param m number of iteration
+#' @param last_estimation previous estimation object 
+#' @param ... not used
+#' @return network_formation object
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+network_formation.mcmc = function(data, m=1000, last_estimation,...){
+
+  self_data_matrix = do.call(rbind, lapply(data , function(z) z$self_data_matrix))
+  friends_data_matrix = do.call(rbind, lapply(data , function(z) z$friends_data_matrix))
+  
+  y = do.call(rbind, lapply(data,"[[","response_self"))
+  y_not = !y
+  number_of_network = ncol(y)
+
+  # if (number_of_network==1){
+  #   return( single_network_formation_mcmc(data,m,last_estimation) )
+  # }
+
+  name = colnames(self_data_matrix)
+  k =  ncol(self_data_matrix)
+  n = NROW(y)*2
+  delta_matrix = rep(list(matrix(0, nrow=m, ncol= k )), number_of_network)
+
+  if (number_of_network>1){
+    number_col_Sigma_matrix = number_of_network*(number_of_network-1)/2
+    Sigma_matrix = matrix(0, nrow=m, ncol = number_col_Sigma_matrix )
+
+    sigma_name = genPairwiseIndex(number_of_network)
+    sigma_name = sigma_name[,1] %+% sigma_name[,2]
+    
+    colnames(Sigma_matrix) = "Sigma_" %+%  sigma_name
+  } else{
+    number_col_Sigma_matrix=1
+    Sigma_matrix = matrix(0, nrow=m, ncol = number_col_Sigma_matrix )
+    colnames(Sigma_matrix) = "Sigma_11" 
+  }
+
+  network_name = data[[1]]$network_name
+
+  for (i in 1:number_of_network){
+    colnames(delta_matrix[[i]]) = network_name[[i]] %+% "_" %+% name
+  }
+
+  ystar1 = matrix(0, nrow=nrow(y), ncol=ncol(y))
+  ystar2 = matrix(0, nrow=nrow(y), ncol=ncol(y))
+  Sigma = matrix(0.5,number_of_network,number_of_network)
+  diag(Sigma) = 1
+  delta = matrix(0, nrow=k, ncol=number_of_network)
+
+
+  if (!missing(last_estimation)){
+    ystar1 = last_estimation$ystar1
+    ystar2 = last_estimation$ystar2
+    delta = last_estimation$delta
+    Sigma = last_estimation$Sigma
+  }
+
+
+  X = rbind(self_data_matrix, friends_data_matrix)
+  XX_inv = solve(crossprod(X))
+
+
+  xb1 = self_data_matrix %*% delta 
+  xb2 = friends_data_matrix %*% delta 
+
+
+  tic()
+  for (i in 1:m){
+    if (i %% 1000 == 0 )
+      cat(i, ">\n")
+
+    ## update ystar
+      for( j in 1:number_of_network){
+        ystar1_demean = ystar1 - xb1
+        ystar2_demean = ystar2 - xb2
+
+        temp = find_normal_conditional_dist(a=ystar1_demean, i=j, j=-j, Sigma=Sigma)
+        ystar1[,j] = drawYstar(y=y[,j] , ystar_other=ystar2[,j], mean=xb1[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
+
+        temp = find_normal_conditional_dist(a= ystar2_demean, i=j, j=-j, Sigma=Sigma)
+        ystar2[,j] = drawYstar(y=y[,j] , ystar_other=ystar1[,j], mean=xb2[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
+      }
+      ystar1_demean = ystar1 - xb1
+      ystar2_demean = ystar2 - xb2
+
+      ystar_demean = rbind(ystar1_demean,ystar2_demean)
+      ystar = rbind(ystar1,ystar2)
+
+      for ( j in 1:number_of_network){
+        temp = find_normal_conditional_dist(a=ystar_demean, i=j, j=-j, Sigma=Sigma)
+
+        beta_coef = XX_inv %*% crossprod(X, (ystar[,j]-temp$mean ) )
+
+        delta[,j] = mvrnorm(n=1, mu=beta_coef, XX_inv * as.vector(temp$var) )
+
+        ystar_demean = ystar[,j] - X %*% delta[,j]
+
+        delta_matrix[[j]][i,] = delta[,j]
+      }
+      xb1 = self_data_matrix %*% delta 
+      xb2 = friends_data_matrix %*% delta 
+
+      ystar1_demean = ystar1 - xb1
+      ystar2_demean = ystar2 - xb2
+      ystar_demean = rbind(ystar1_demean,ystar2_demean)
+
+
+      ## Sigma
+      if (number_of_network > 1 ){
+        Sigma = solve( rwish(n , solve( crossprod(ystar_demean )) ) )
+
+        normalization = diag(1/sqrt(diag(Sigma)))
+
+        Sigma = normalization %*%  Sigma %*% t(normalization) 
+        Sigma_matrix[i,] = Sigma[lower.tri(Sigma)]
+      } else {
+        Sigma = 1
+        Sigma_matrix[i,] = 1
+      }
+  }   
+  toc()
+
+  out = list(delta_matrix=delta_matrix, ystar1=ystar1,ystar2=ystar2, Sigma=Sigma,Sigma_matrix=Sigma_matrix, delta=delta)
+
+  class(out) = "network_formation.mcmc" 
+  out
+}
+
+#' Description merge.network_formation.mcmc
+#' @name merge.network_formation.mcmc
+#' @aliases merge.network_formation.mcmc
+#' @title merge.network_formation.mcmc
+#' @param x First object to merge with
+#' @param y Second object to merge with 
+#' @return A new network_formation.mcmc object
+#' @method merge network_formation.mcmc
+#' @S3method merge network_formation.mcmc
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+merge.network_formation.mcmc = function(x,y){
+  out = y
+  if (is.list(x$delta_matrix)){
+    for (i in 1:length(x$delta_matrix)){
+      out$delta_matrix[[i]] = rbind(x$delta_matrix[[i]], y$delta_matrix[[i]] )
+    }
+    out$Sigma_matrix = rbind(x$Sigma_matrix, y$Sigma_matrix)
+  } else{
+    out$delta_matrix = rbind(x$delta_matrix , y$delta_matrix) 
+  }
+  out
+}
+
+#' Description Get a matrix of parameter 
+#' @name getParameterMatrix.network_formation.mcmc
+#' @aliases getParameterMatrix.network_formation.mcmc
+#' @title getParameterMatrix.network_formation.mcmc
+#' @param x network_formation
+#' @param tail iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
+#' @return A matrix
+#' @method getParameterMatrix network_formation.mcmc
+#' @S3method getParameterMatrix network_formation.mcmc
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+getParameterMatrix.network_formation.mcmc = function(x, tail, ...){
+  if (is.list(x$delta_matrix)){
+    out = do.call(cbind, x$delta_matrix)
+    out = cbind(out, x$Sigma_matrix )
+  } else{
+    out = x$delta_matrix
+  }
+  if (!missing(tail)) {
+    out = extractTail(out, tail)
+  }
+  out
+}
+#' Description Create a summary table
+#' @name summary.network_formation.mcmc
+#' @aliases summary.network_formation.mcmc
+#' @title summary.network_formation.mcmc
+#' @param x network_formation object
+#' @param tail iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
+#' @param ... not used
+#' @return A summary table
+#' @method summary network_formation.mcmc
+#' @S3method summary network_formation.mcmc
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+summary.network_formation.mcmc = function(x,tail,...){
+  computeSummaryTable(x,tail,...)
+}
+
+#' Description Create a summary table
+#' @name summary.network_formation.maxLik
+#' @aliases summary.network_formation.maxLik
+#' @title summary.network_formation.maxLik
+#' @param x network_formation object
+#' @param ... not used
+#' @return A summary table
+#' @method summary network_formation.maxLik
+#' @S3method summary network_formation.maxLik
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+summary.network_formation.maxLik = function(x,...){
+  x$summary_table
+}
+
+
+# single_network_formation_mcmc = function(data,  m=1000, last_estimation){
+#   self_data_matrix = do.call(rbind, lapply(data , function(z) z$self_data_matrix))
+#   friends_data_matrix = do.call(rbind, lapply(data , function(z) z$friends_data_matrix))
+
+#   response = do.call(rbind, lapply(data, function(z) z$response_self))
+#   response_not = !response
+
+#   name = colnames(self_data_matrix)
+#   k =  ncol(self_data_matrix)
+#   delta_matrix = matrix(0, nrow=m+1, ncol=k)
+#   ystar1 = rep(0, length(response))
+#   ystar2 = rep(0, length(response))
+#   network_name = data[[1]]$network_name
+
+#   if (!missing(last_estimation)){
+#     delta_matrix[1,] = tail(last_estimation$delta_matrix,1)
+#     ystar1 = last_estimation$ystar1
+#     ystar2 = last_estimation$ystar2
+#   }
+
+#   colnames(delta_matrix) = network_name %+% "_" %+% colnames(self_data_matrix)
+
+#   X = rbind(self_data_matrix, friends_data_matrix)
+#   XX_inv = solve(crossprod(X))
+
+#   tic()
+#   for (i in 1:m){
+#     if (i %% 1000 == 0 ){
+#       cat(i ,">\n")
+#     }
+
+#     xb1 = self_data_matrix %*% delta_matrix[i, ]
+#     xb2 = friends_data_matrix %*% delta_matrix[i, ]
+
+#     ystar1 = drawYstar(y=response , ystar_other=ystar2, mean=xb1, y_not= response_not)
+#     ystar2 = drawYstar(y=response, ystar_other=ystar1, mean=xb2, y_not= response_not)
+
+#     delta_matrix[i+1, ] =   mvrnorm(n=1, mu=XX_inv %*% crossprod(X,c(ystar1,ystar2)), XX_inv)
+
+#   }
+#   toc()
+#   delta_matrix = tail(delta_matrix,-1)
+
+#   out = list(delta_matrix=delta_matrix, ystar1=ystar1, ystar2=ystar2)
+#   class(out) = "network_formation" 
+#   out
+# }
+
+
+
+
 
 # lik_single_network_formation_parser = function(data, delta, network_id=1){
 #       loglikelihood_network_formation(
@@ -46,22 +448,6 @@ loglikelihood_network_formation = function(y, x1, x2, delta, y_not){
 #   )
 # })
 
-lik_grad_single_network_formation = function(x1,x2,y, delta,...){
-  R1 = x1 %*% delta
-  R2 = x2 %*% delta
-
-  pi = pnorm(R1)
-  pj = pnorm(R2)
-  di = dnorm(R1)
-  dj = dnorm(R2)
-  p = pi * pj
-
-  f =  (y-p) / (p* (1-p)) 
-  f[is.nan(f)] = 0
-
-  out =  as.vector( f  ) * (as.vector(pj * di) * x1  + as.vector(pi *dj) * x2 )
-  as.vector(colSums(out))
-}
 
 # lik_grad_single_network_formation_parser = function(data, delta, network_id=1){
 
@@ -128,35 +514,6 @@ lik_grad_single_network_formation = function(x1,x2,y, delta,...){
 # })
 
 
-network_formation = function(data){
-  tic()
-
-  self_data_matrix = do.call(rbind, lapply(data , function(z) z$self_data_matrix))
-  friends_data_matrix = do.call(rbind, lapply(data , function(z) z$friends_data_matrix))
-
-  y = do.call(rbind, lapply(data, function(z) z$response_self))
-
-  number_of_network = ncol(y)
-  network_name = data[[1]]$network_name
-
-  out = vector("list",number_of_network)
-  summary_table = vector("list",number_of_network)
-
-  for (i in 1:number_of_network){
-    yy = y[,i]
-    yy_not = !yy
-    start = glm(yy~self_data_matrix-1, family=binomial(link="probit"))$coef
-
-    out[[i]] = maxLik(function(z, ...) loglikelihood_network_formation(delta=z, ...) , start=start ,  x1=self_data_matrix, x2=friends_data_matrix, y=yy, y_not=yy_not , grad= lik_grad_single_network_formation, method="BFGS")
-
-      summary_table[[i]] = generateSignificance(summary(out[[i]])$estimate[,1:2])
-      rownames(summary_table[[i]]) = network_name[i] %+% "_" %+%colnames(self_data_matrix)
-  }
-
-  summary_table = do.call(rbind,summary_table)
-  toc()
-  list(out=out, summary_table=summary_table)
-}
 
 # single_network_formation_parallel = function(data, cl, network_id=1){
 #   tic()
@@ -238,81 +595,8 @@ network_formation = function(data){
 ## method 1 : update delta as vector
 ## method 2 : udpate delta one by one. Method 2 is more efficient, because it reduces the call to the likelihood function by half.
 
-drawYstar_single = function(y, ystar_other, mean, y_not=!y, sd=1){
 
-  ystar_other_positive = ystar_other>=0  
-
-  index_case1 = y
-  index_case2 = as.logical(y_not * ystar_other_positive)
-  index_case3 = as.logical(y_not * !ystar_other_positive)
-
-  n1=sum(index_case1)
-  n2=sum(index_case2)
-  n3=sum(index_case3)
-  
-  ystar_new = rep(NA, length(y))
-
-  if (n1>0)
-    ystar_new[index_case1] = rtruncnorm(1,a=0,b=Inf, mean=mean[index_case1],sd=sd)  
-  if (n2>0)
-    ystar_new[index_case2] =rtruncnorm(1,a=-Inf,b=0,mean=mean[index_case2],sd=sd) 
-  if (n3>0)
-    ystar_new[index_case3] = mean[index_case3] +rnorm(n3,sd=sd)
-
-  ystar_new
-}
-
-
-single_network_formation_mcmc = function(data,  m=1000, last_out){
-  self_data_matrix = do.call(rbind, lapply(data , function(z) z$self_data_matrix))
-  friends_data_matrix = do.call(rbind, lapply(data , function(z) z$friends_data_matrix))
-
-  response = do.call(rbind, lapply(data, function(z) z$response_self))
-  response_not = !response
-
-  name = colnames(self_data_matrix)
-  k =  ncol(self_data_matrix)
-  delta_matrix = matrix(0, nrow=m+1, ncol=k)
-  ystar1 = rep(0, length(response))
-  ystar2 = rep(0, length(response))
-  network_name = data[[1]]$network_name
-
-  if (!missing(last_out)){
-    delta_matrix[1,] = tail(last_out$delta_matrix,1)
-    ystar1 = last_out$ystar1
-    ystar2 = last_out$ystar2
-  }
-
-  colnames(delta_matrix) = network_name %+% "_" %+% colnames(self_data_matrix)
-
-  X = rbind(self_data_matrix, friends_data_matrix)
-  XX_inv = solve(crossprod(X))
-
-  tic()
-  for (i in 1:m){
-    if (i %% 1000 == 0 ){
-      cat(i ,">\n")
-    }
-
-    xb1 = self_data_matrix %*% delta_matrix[i, ]
-    xb2 = friends_data_matrix %*% delta_matrix[i, ]
-
-    ystar1 = drawYstar_single(y=response , ystar_other=ystar2, mean=xb1, y_not= response_not)
-    ystar2 = drawYstar_single(y=response, ystar_other=ystar1, mean=xb2, y_not= response_not)
-
-    delta_matrix[i+1, ] =   mvrnorm(n=1, mu=XX_inv %*% crossprod(X,c(ystar1,ystar2)), XX_inv)
-
-  }
-  toc()
-  delta_matrix = tail(delta_matrix,-1)
-
-  out = list(delta_matrix=delta_matrix, ystar1=ystar1, ystar2=ystar2)
-  class(out) = "network_formation" 
-  out
-}
-
-
-# single_network_formation_mcmc_RE = function(data, network_id, m=1000, last_out){
+# single_network_formation_mcmc_RE = function(data, network_id, m=1000, last_estimation){
 #   self_data_matrix = do.call(rbind, lapply(data , function(z) z$self_data_matrix))
 #   friends_data_matrix = do.call(rbind, lapply(data , function(z) z$friends_data_matrix))
 
@@ -330,12 +614,12 @@ single_network_formation_mcmc = function(data,  m=1000, last_out){
 #   ystar2 = rep(0, length(response))
 #   e = rep(0,sum(n)) #rnorm(sum(n))
 
-#   if (!missing(last_out)){
-#     delta_matrix[1,] = tail(last_out$delta_matrix,1)
-#     sigma2e_matrix[1,] = tail(last_out$sigma2e_matrix,1)
-#     ystar1 = last_out$ystar1
-#     ystar2 = last_out$ystar2
-#     e = last_out$e
+#   if (!missing(last_estimation)){
+#     delta_matrix[1,] = tail(last_estimation$delta_matrix,1)
+#     sigma2e_matrix[1,] = tail(last_estimation$sigma2e_matrix,1)
+#     ystar1 = last_estimation$ystar1
+#     ystar2 = last_estimation$ystar2
+#     e = last_estimation$e
 #   }
 
 
@@ -360,8 +644,8 @@ single_network_formation_mcmc = function(data,  m=1000, last_out){
 #     xb2 = friends_data_matrix %*% delta_matrix[i, ] + full_e$e_j
 
 #     # update ystar
-#     ystar1 = drawYstar_single(y=response , ystar_other=ystar2, mean=xb1, y_not= response_not)
-#     ystar2 = drawYstar_single(y=response, ystar_other=ystar1, mean=xb2, y_not= response_not)
+#     ystar1 = drawYstar(y=response , ystar_other=ystar2, mean=xb1, y_not= response_not)
+#     ystar2 = drawYstar(y=response, ystar_other=ystar1, mean=xb2, y_not= response_not)
     
 #     # update delta
 #     mu_delta = XX_inv %*% crossprod(X,c(ystar1-full_e$e_i,ystar2-full_e$e_j))
@@ -391,7 +675,7 @@ single_network_formation_mcmc = function(data,  m=1000, last_out){
 # })
 
 
-# single_network_formation_mcmc_parallel = function(data,cl, network_id, m=1000, last_out){
+# single_network_formation_mcmc_parallel = function(data,cl, network_id, m=1000, last_estimation){
 
 #   name = colnames(data[[1]]$self_data_matrix)
 #   k =  ncol(data[[1]]$self_data_matrix)
@@ -402,10 +686,10 @@ single_network_formation_mcmc = function(data,  m=1000, last_out){
 
 #   ystar2 = lapply(n2, rep,x=0 )
 
-#   if (!missing(last_out)){
-#     delta_matrix[1,] = tail(last_out$delta_matrix,1)
-#     ystar1 = tail(last_out$ystar1)
-#     ystar2 = tail(last_out$ystar2)
+#   if (!missing(last_estimation)){
+#     delta_matrix[1,] = tail(last_estimation$delta_matrix,1)
+#     ystar1 = tail(last_estimation$ystar1)
+#     ystar2 = tail(last_estimation$ystar2)
 #   }
 
 #   colnames(delta_matrix) = name
@@ -421,7 +705,7 @@ single_network_formation_mcmc = function(data,  m=1000, last_out){
 #   for (i in 1:m){
 #     ystar1=
 #     parLapply(cl, 1:G, function(z, ystar2, network_id,delta) {
-#       drawYstar_single(
+#       drawYstar(
 #         y= data[[z]]$response[[network_id]],
 #         ystar_other = ystar2[[z]],
 #         mean = data[[z]]$self_data_matrix %*% delta
@@ -433,7 +717,7 @@ single_network_formation_mcmc = function(data,  m=1000, last_out){
 
 #     ystar2=
 #     parLapply(cl, 1:G, function(z, ystar1, network_id, delta) {
-#       drawYstar_single(
+#       drawYstar(
 #         y= data[[z]]$response[[network_id]],
 #         ystar_other = ystar1[[z]],
 #         mean = data[[z]]$friends_data_matrix %*% delta
@@ -489,123 +773,9 @@ single_network_formation_mcmc = function(data,  m=1000, last_out){
 #   ystar_new
 # })
 
-multi_network_formation_mcmc = function(data, m=1000, last_out){
-
-  self_data_matrix = do.call(rbind, lapply(data , function(z) z$self_data_matrix))
-  friends_data_matrix = do.call(rbind, lapply(data , function(z) z$friends_data_matrix))
-  
-  y = do.call(rbind, lapply(data,"[[","response_self"))
-  y_not = !y
-  number_of_network = ncol(y)
-
-  if (number_of_network==1){
-    return( single_network_formation_mcmc(data,m,last_out) )
-  }
-
-  name = colnames(self_data_matrix)
-  k =  ncol(self_data_matrix)
-  n = NROW(y)*2
-  delta_matrix = rep(list(matrix(0, nrow=m, ncol= k )), number_of_network)
-
-  number_col_Sigma_matrix = number_of_network*(number_of_network-1)/2
-  Sigma_matrix = matrix(0, nrow=m, ncol = number_col_Sigma_matrix )
-
-  sigma_name = genPairwiseIndex(number_of_network)
-  sigma_name = sigma_name[,1] %+% sigma_name[,2]
-  
-  colnames(Sigma_matrix) = "Sigma_" %+%  sigma_name
-
-  network_name = data[[1]]$network_name
-
-  for (i in 1:number_of_network){
-    colnames(delta_matrix[[i]]) = network_name[[i]] %+% "_" %+% name
-  }
-
-  ystar1 = matrix(0, nrow=nrow(y), ncol=ncol(y))
-  ystar2 = matrix(0, nrow=nrow(y), ncol=ncol(y))
-  Sigma = matrix(0.5,number_of_network,number_of_network)
-  diag(Sigma) = 1
-  delta = matrix(0, nrow=k, ncol=number_of_network)
 
 
-  if (!missing(last_out)){
-    ystar1 = last_out$ystar1
-    ystar2 = last_out$ystar2
-    delta = last_out$delta
-    Sigma = last_out$Sigma
-  }
-
-
-  X = rbind(self_data_matrix, friends_data_matrix)
-  XX_inv = solve(crossprod(X))
-
-
-  xb1 = self_data_matrix %*% delta 
-  xb2 = friends_data_matrix %*% delta 
-
-
-  tic()
-  for (i in 1:m){
-    if (i %% 1000 == 0 )
-      cat(i, ">\n")
-
-    ## update ystar
-      for( j in 1:number_of_network){
-        ystar1_demean = ystar1 - xb1
-        ystar2_demean = ystar2 - xb2
-
-        temp = find_normal_conditional_dist(a=ystar1_demean, i=j, j=-j, Sigma=Sigma)
-        ystar1[,j] = drawYstar_single(y=y[,j] , ystar_other=ystar2[,j], mean=xb1[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
-
-        temp = find_normal_conditional_dist(a= ystar2_demean, i=j, j=-j, Sigma=Sigma)
-        ystar2[,j] = drawYstar_single(y=y[,j] , ystar_other=ystar1[,j], mean=xb2[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
-      }
-      ystar1_demean = ystar1 - xb1
-      ystar2_demean = ystar2 - xb2
-
-      ystar_demean = rbind(ystar1_demean,ystar2_demean)
-      ystar = rbind(ystar1,ystar2)
-
-      for ( j in 1:number_of_network){
-        temp = find_normal_conditional_dist(a=ystar_demean, i=j, j=-j, Sigma=Sigma)
-
-        beta_coef = XX_inv %*% crossprod(X, (ystar[,j]-temp$mean ) )
-
-        delta[,j] = mvrnorm(n=1, mu=beta_coef, XX_inv * as.vector(temp$var) )
-
-        ystar_demean = ystar[,j] - X %*% delta[,j]
-
-        delta_matrix[[j]][i,] = delta[,j]
-      }
-      xb1 = self_data_matrix %*% delta 
-      xb2 = friends_data_matrix %*% delta 
-
-      ystar1_demean = ystar1 - xb1
-      ystar2_demean = ystar2 - xb2
-      ystar_demean = rbind(ystar1_demean,ystar2_demean)
-
-
-      ## Sigma
-      Sigma = solve( rwish(n , solve( crossprod(ystar_demean )) ) )
-
-      normalization = diag(1/sqrt(diag(Sigma)))
-
-      Sigma = normalization %*%  Sigma %*% t(normalization) 
-      Sigma_matrix[i,] = Sigma[lower.tri(Sigma)]
-  }   
-  toc()
-
-  out = list(delta_matrix=delta_matrix, ystar1=ystar1,ystar2=ystar2, Sigma=Sigma,Sigma_matrix=Sigma_matrix, delta=delta)
-
-  class(out) = "network_formation" 
-  out
-}
-
-
-
-
-
-# multi_network_formation_mcmc_RE = function(data, m=1000, last_out){
+# multi_network_formation_mcmc_RE = function(data, m=1000, last_estimation){
 
 #   self_data_matrix = do.call(rbind, lapply(data , function(z) z$self_data_matrix))
 #   friends_data_matrix = do.call(rbind, lapply(data , function(z) z$friends_data_matrix))
@@ -632,16 +802,16 @@ multi_network_formation_mcmc = function(data, m=1000, last_out){
 #   colnames(delta1_matrix) = name
 #   colnames(delta2_matrix) = name
 
-#   if (!missing(last_out)){
-#     delta1_matrix[1,] = tail(last_out$delta1,1)
-#     delta2_matrix[1,] = tail(last_out$delta2,1)
-#     rho_matrix[1,] = tail(last_out$rho,1)
-#     ystar11 = last_out$ystar11
-#     ystar12 = last_out$ystar12
-#     ystar21 = last_out$ystar21
-#     ystar22 = last_out$ystar22
-#     e1 = last_out$e1
-#     e2 = last_out$e2
+#   if (!missing(last_estimation)){
+#     delta1_matrix[1,] = tail(last_estimation$delta1,1)
+#     delta2_matrix[1,] = tail(last_estimation$delta2,1)
+#     rho_matrix[1,] = tail(last_estimation$rho,1)
+#     ystar11 = last_estimation$ystar11
+#     ystar12 = last_estimation$ystar12
+#     ystar21 = last_estimation$ystar21
+#     ystar22 = last_estimation$ystar22
+#     e1 = last_estimation$e1
+#     e2 = last_estimation$e2
 #   }
 
 
@@ -742,31 +912,6 @@ multi_network_formation_mcmc = function(data, m=1000, last_out){
 #   class(out) = "multi_network_formation_RE" 
 #   out
 # })
-
-
-
-merge.network_formation = function(x,y){
-  out = y
-  if (is.list(x$delta_matrix)){
-    for (i in 1:length(x$delta_matrix)){
-      out$delta_matrix[[i]] = rbind(x$delta_matrix[[i]], y$delta_matrix[[i]] )
-    }
-    out$Sigma_matrix = rbind(x$Sigma_matrix, y$Sigma_matrix)
-  } else{
-    out$delta_matrix = rbind(x$delta_matrix , y$delta_matrix) 
-  }
-  out
-}
-
-getParameterMatrix.network_formation = function(x){
-  if (is.list(x$delta_matrix)){
-    out = do.call(cbind, x$delta_matrix)
-    out = cbind(out, x$Sigma_matrix )
-  } else{
-    out = x$delta_matrix
-  }
-  out
-}
 
 
 
