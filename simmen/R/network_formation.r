@@ -269,7 +269,7 @@ network_formation.mcmc = function(data, m=1000, last_estimation,...){
         Sigma = normalization %*%  Sigma %*% t(normalization) 
         Sigma_matrix[i,] = Sigma[lower.tri(Sigma)]
       } else {
-        Sigma = 1
+        Sigma = as.matrix(1)
         Sigma_matrix[i,] = 1
       }
   }   
