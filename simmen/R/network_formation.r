@@ -30,10 +30,11 @@ loglikelihood_network_formation = function(y, x1, x2, delta, y_not){
 #' @param x1 variables of i 
 #' @param x2 variables of j
 #' @param delta parameters
+#' @param y_not complement of y
 #' @return value of gradient of log likelihood
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-lik_grad_single_network_formation = function(y, x1, x2, delta){
+lik_grad_single_network_formation = function(y, x1, x2, delta, y_not){
   R1 = x1 %*% delta
   R2 = x2 %*% delta
 
