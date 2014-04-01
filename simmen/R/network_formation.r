@@ -287,12 +287,13 @@ network_formation.mcmc = function(data, m=1000, last_estimation,...){
 #' @title merge.network_formation.mcmc
 #' @param x First object to merge with
 #' @param y Second object to merge with 
+#' @param ... not used
 #' @return A new network_formation.mcmc object
 #' @method merge network_formation.mcmc
 #' @S3method merge network_formation.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-merge.network_formation.mcmc = function(x,y){
+merge.network_formation.mcmc = function(x,y,...){
   out = y
   if (is.list(x$delta_matrix)){
     for (i in 1:length(x$delta_matrix)){
@@ -311,6 +312,7 @@ merge.network_formation.mcmc = function(x,y){
 #' @title getParameterMatrix.network_formation.mcmc
 #' @param x network_formation
 #' @param tail iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
+#'' @param ... not used
 #' @return A matrix
 #' @method getParameterMatrix network_formation.mcmc
 #' @S3method getParameterMatrix network_formation.mcmc
@@ -328,35 +330,36 @@ getParameterMatrix.network_formation.mcmc = function(x, tail, ...){
   }
   out
 }
+
+
 #' Description Create a summary table
 #' @name summary.network_formation.mcmc
 #' @aliases summary.network_formation.mcmc
 #' @title summary.network_formation.mcmc
-#' @param x network_formation object
-#' @param tail iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
-#' @param ... not used
+#' @param object network_formation object
+#' @param ... tail:  iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
 #' @return A summary table
 #' @method summary network_formation.mcmc
 #' @S3method summary network_formation.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-summary.network_formation.mcmc = function(x,tail,...){
-  computeSummaryTable(x,tail,...)
+summary.network_formation.mcmc = function(object,...){
+  computeSummaryTable(object,...)
 }
 
 #' Description Create a summary table
 #' @name summary.network_formation.maxLik
 #' @aliases summary.network_formation.maxLik
 #' @title summary.network_formation.maxLik
-#' @param x network_formation object
+#' @param object network_formation object
 #' @param ... not used
 #' @return A summary table
 #' @method summary network_formation.maxLik
 #' @S3method summary network_formation.maxLik
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-summary.network_formation.maxLik = function(x,...){
-  x$summary_table
+summary.network_formation.maxLik = function(object,...){
+  object$summary_table
 }
 
 
