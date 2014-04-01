@@ -1125,7 +1125,7 @@ SNF = function(m, data, last_estimation, update_tau=TRUE,tau=0.005){
 
 
   for (i in 1:number_of_network){
-    colnames(delta_matrix[[i]]) = c(network_name[[i]] %+% "_" %+% colnames(x1) , colname_network )  
+    colnames(delta_matrix[[i]]) = c(network_name[[i]] %+% "_" %+% colnames(x1) , network_name[[i]] %+% "_" %+%  colname_network )  
   }
   X= rbind(x1,x2)
 
