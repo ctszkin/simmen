@@ -1,0 +1,27 @@
+\name{drawYstar}
+\alias{drawYstar}
+\title{drawYstar}
+\usage{
+drawYstar(y, ystar_other, mean, y_not = !y, sd = 1)
+}
+\arguments{
+  \item{y}{indicator of whether i and j is connected}
+
+  \item{ystar_other}{latent value of j}
+
+  \item{mean}{x*delta}
+
+  \item{y_not}{complement of y}
+
+  \item{sd}{sd of the error}
+}
+\value{
+value
+}
+\description{
+Description drawYstar
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+
