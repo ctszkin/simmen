@@ -4,7 +4,15 @@
 ## U_xb : an n by n utility matrix, i,j element is the utility of i to make friends with j. (Xbeta)
 ## delta1 delta2 
 
-
+#' Description Draw random sample of meeting sequence
+#' @name DrawSeqSample
+#' @aliases DrawSeqSample
+#' @title DrawSeqSample
+#' @param x x
+#' @param p p
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 DrawSeqSample = function(x , p =0.01){
 	if (is.list(x)){
 		out = vector("list",length(x))
@@ -34,7 +42,7 @@ DrawSeqSample = function(x , p =0.01){
 
 # repeat
 
-# computeNetworkSummary = function(seq_m,D){
+# computeNetworkSummary_r = function(seq_m,D){
 # 	n = nrow(D)
 # 	D0 = matrix(0,ncol=n,nrow=n)
 # 	degree = matrix(0,ncol=n,nrow=n)
@@ -141,7 +149,7 @@ DrawSeqSample = function(x , p =0.01){
 # 		'
 # 	)
 
-# q1=computeNetworkSummary(seq_m[[1]],D[[1]])
+# q1=computeNetworkSummary_r(seq_m[[1]],D[[1]])
 # q2=computeNetworkSummary_cxx(seq_m[[1]],D[[1]])
 # all.equal(q1$self,q2$self,check.attributes=F)
 # all.equal(q1$friends,q2$friends,check.attributes=F)
@@ -185,10 +193,19 @@ DrawSeqSample = function(x , p =0.01){
 # all(q1[[2]]==q2[[2]])
 
 
-computeNetworkSummary2=function(seq_m=seq_m_new, D=D){
+#' Description computeNetworkSummary
+#' @name computeNetworkSummary
+#' @aliases computeNetworkSummary
+#' @title computeNetworkSummary
+#' @param seq_m meeting sequence 
+#' @param D adjacency matrix 
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+computeNetworkSummary=function(seq_m, D){
 	# out = list()
 	# for (i in 1:length(D)){
-	# 	temp = computeNetworkSummary(g(seq_m=seq_m[[i]], D=D[[i]]))
+	# 	temp = computeNetworkSummary_r(g(seq_m=seq_m[[i]], D=D[[i]]))
 	# 	out$self = rbind(out$self, temp$self)
 	# 	out$friends = rbind(out$friends, temp$friends)
 	# }
@@ -205,7 +222,7 @@ computeNetworkSummary2=function(seq_m=seq_m_new, D=D){
   list(self=self,friends=friends)
 }
 
-# q1 = computeNetworkSummary2(seq_m,D)
+# q1 = computeNetworkSummary(seq_m,D)
 
 
 
@@ -214,172 +231,172 @@ computeNetworkSummary2=function(seq_m=seq_m_new, D=D){
 
 
 
-SNF_single_mcmc = function(m, data,  last_out, update_tau=TRUE,tau=0.0005){
+# SNF_single_mcmc = function(m, data,  last_estimation, update_tau=TRUE,tau=0.0005){
 
-  # if (network_id==1){
-		# D = lapply(data, function(z) z$W!=0 )
-		# y = do.call(c, lapply(data, "[[", "response1"))
-		# y_not = !y
-  # } else{
-		# D = lapply(data, function(z) z$W2!=0 )
-		# y = do.call(c, lapply(data, "[[", "response2"))
-		# y_not = !y
-  # }
+#   # if (network_id==1){
+# 		# D = lapply(data, function(z) z$W!=0 )
+# 		# y = do.call(c, lapply(data, "[[", "response1"))
+# 		# y_not = !y
+#   # } else{
+# 		# D = lapply(data, function(z) z$W2!=0 )
+# 		# y = do.call(c, lapply(data, "[[", "response2"))
+# 		# y_not = !y
+#   # }
 
-  D = lapply(data, function(z) z$D_list[[1]])
-  y = do.call(c, lapply(data,"[[","response_self") )
-  y_not = !y
+#   D = lapply(data, function(z) z$D_list[[1]])
+#   y = do.call(c, lapply(data,"[[","response_self") )
+#   y_not = !y
 
-	n= sapply(data,"[[","n")
-	n2 = sapply(data, function(z) length(z$response_self))
+# 	n= sapply(data,"[[","n")
+# 	n2 = sapply(data, function(z) length(z$response_self))
 
-	x1 = do.call(rbind, lapply(data, "[[" , "self_data_matrix") )
-	x2 = do.call(rbind, lapply(data, "[[" , "friends_data_matrix") )
+# 	x1 = do.call(rbind, lapply(data, "[[" , "self_data_matrix") )
+# 	x2 = do.call(rbind, lapply(data, "[[" , "friends_data_matrix") )
 	
-	number_of_network_variable = 3
+# 	number_of_network_variable = 3
 
-	postition = mapply(seq, c(0,head(cumsum(n2),-1)) +1,cumsum(n2))
-	ystar1 = rep(0,length(y))
-	ystar2 = rep(0,length(y))
-	seq_m = lapply(data,"[[","group_index")
+# 	postition = mapply(seq, c(0,head(cumsum(n2),-1)) +1,cumsum(n2))
+# 	ystar1 = rep(0,length(y))
+# 	ystar2 = rep(0,length(y))
+# 	seq_m = lapply(data,"[[","group_index")
 
-	delta_matrix = matrix(0, nrow=m+1, ncol= ncol(x1) + number_of_network_variable )
-	update_rate = 0
+# 	delta_matrix = matrix(0, nrow=m+1, ncol= ncol(x1) + number_of_network_variable )
+# 	update_rate = 0
 
-	## initialization 
+# 	## initialization 
 
-	if (!missing(last_out) && !is.null(last_out) ){
-		cat("Using last_out \n")
-		ystar1 = last_out$ystar1
-		ystar2 = last_out$ystar2
-		seq_m = last_out$seq_m
-		delta_matrix[1,] = as.vector(tail(last_out$delta,1))
+# 	if (!missing(last_estimation) && !is.null(last_estimation) ){
+# 		cat("Using last_estimation \n")
+# 		ystar1 = last_estimation$ystar1
+# 		ystar2 = last_estimation$ystar2
+# 		seq_m = last_estimation$seq_m
+# 		delta_matrix[1,] = as.vector(tail(last_estimation$delta,1))
 
-    index = last_out$index+1
-    # name = last_out$name
-    ID = last_out$ID
+#     index = last_estimation$index+1
+#     # name = last_estimation$name
+#     ID = last_estimation$ID
 
-		if (update_tau){
-    	tau=updateTau(last_out$tau, last_out$update_rate, lower_bound=0.2, upper_bound=0.4,optim_rate=0.3,min_rate=0.00001)
-		} else{
-			tau=last_out$tau
-		}
-	} else {
-    index = 1
-    ID = genUniqueID()
-    cat("Start new instance with ID ", ID, "\n")
-  }
+# 		if (update_tau){
+#     	tau=updateTau(last_estimation$tau, last_estimation$update_rate, lower_bound=0.2, upper_bound=0.4,optim_rate=0.3,min_rate=0.00001)
+# 		} else{
+# 			tau=last_estimation$tau
+# 		}
+# 	} else {
+#     index = 1
+#     ID = genUniqueID()
+#     cat("Start new instance with ID ", ID, "\n")
+#   }
 
-	network_summary = computeNetworkSummary2(seq_m=seq_m, D=D)
+# 	network_summary = computeNetworkSummary(seq_m=seq_m, D=D)
 
-	xx1 = cbind(x1,network_summary$self)
-	xx2 = cbind(x2,network_summary$friends)
+# 	xx1 = cbind(x1,network_summary$self)
+# 	xx2 = cbind(x2,network_summary$friends)
 
-	xb1 = xx1 %*% delta_matrix[1,]
-	xb2 = xx2 %*% delta_matrix[1,]
+# 	xb1 = xx1 %*% delta_matrix[1,]
+# 	xb2 = xx2 %*% delta_matrix[1,]
 
-	colnames(delta_matrix) = colnames(xx1)
-  name = colnames(xx1) 
+# 	colnames(delta_matrix) = colnames(xx1)
+#   name = colnames(xx1) 
 
-	delta_x_index = 1:ncol(x1)
-	delta_network_index = 1:number_of_network_variable + ncol(x1)
+# 	delta_x_index = 1:ncol(x1)
+# 	delta_network_index = 1:number_of_network_variable + ncol(x1)
 
-	tic()
-	## start the gibbs
-	for (i in 1:m){
-		## base on the seq, compute the network summary
-		## draw ystar
+# 	tic()
+# 	## start the gibbs
+# 	for (i in 1:m){
+# 		## base on the seq, compute the network summary
+# 		## draw ystar
 
-		ystar1 = drawYstar_single(y=y , ystar_other=ystar2, mean=xb1, y_not= y_not)
-		ystar2 = drawYstar_single(y=y, ystar_other=ystar1, mean=xb2, y_not= y_not)
+# 		ystar1 = drawYstar(y=y , ystar_other=ystar2, mean=xb1, y_not= y_not)
+# 		ystar2 = drawYstar(y=y, ystar_other=ystar1, mean=xb2, y_not= y_not)
 
-		## draw delta
-		lm_fit = myFastLm(X= rbind(xx1,xx2), y = c(ystar1,ystar2))
-		delta_matrix[i+1, ] =   mvrnorm(n=1, mu=lm_fit$coef, lm_fit$cov/lm_fit$s^2)
+# 		## draw delta
+# 		lm_fit = myFastLm(X= rbind(xx1,xx2), y = c(ystar1,ystar2))
+# 		delta_matrix[i+1, ] =   mvrnorm(n=1, mu=lm_fit$coef, lm_fit$cov/lm_fit$s^2)
 
-    R1 = x1 %*% delta_matrix[i+1, delta_x_index]
-    R2 = x2 %*% delta_matrix[i+1, delta_x_index]
+#     R1 = x1 %*% delta_matrix[i+1, delta_x_index]
+#     R2 = x2 %*% delta_matrix[i+1, delta_x_index]
 
-    xb1 = R1 + network_summary$self %*% delta_matrix[i+1,delta_network_index]
-    xb2 = R2 + network_summary$friends %*% delta_matrix[i+1,delta_network_index]
-
-
-		## update sequence 
-		seq_m_new = DrawSeqSample(seq_m,p=tau)
-
-		# sapply(1:5, function(i) sum(seq_m_new[[i]]!=seq_m[[i]]) )
-
-		network_summary_new = computeNetworkSummary2(seq_m=seq_m_new, D=D)
-
-    xb1_new = R1 + network_summary_new$self %*% delta_matrix[i+1,delta_network_index]
-    xb2_new = R2 + network_summary_new$friends %*% delta_matrix[i+1,delta_network_index]
+#     xb1 = R1 + network_summary$self %*% delta_matrix[i+1,delta_network_index]
+#     xb2 = R2 + network_summary$friends %*% delta_matrix[i+1,delta_network_index]
 
 
-		p1 = splitBy(dnorm(ystar1 - xb1, log=TRUE),by=n2)
-		p2 = splitBy(dnorm(ystar2 - xb2, log=TRUE),by=n2)
-		p1_new = splitBy(dnorm(ystar1 - xb1_new, log=TRUE),by=n2)
-		p2_new = splitBy(dnorm(ystar2 - xb2_new, log=TRUE),by=n2)
+# 		## update sequence 
+# 		seq_m_new = DrawSeqSample(seq_m,p=tau)
 
-		p1 = sapply(p1, sum)
-		p2 = sapply(p2, sum)
-		p1_new = sapply(p1_new, sum)
-		p2_new = sapply(p2_new, sum)
+# 		# sapply(1:5, function(i) sum(seq_m_new[[i]]!=seq_m[[i]]) )
 
-		alpha = exp( p1_new+ p2_new - p1- p2  )
-		update_index = alpha  > runif(5)
-		seq_m[update_index] = seq_m_new[update_index]
-		update_rate = update_rate + update_index
+# 		network_summary_new = computeNetworkSummary(seq_m=seq_m_new, D=D)
+
+#     xb1_new = R1 + network_summary_new$self %*% delta_matrix[i+1,delta_network_index]
+#     xb2_new = R2 + network_summary_new$friends %*% delta_matrix[i+1,delta_network_index]
 
 
-		update_position = unlist(postition[update_index])
-    network_summary$self[update_position,] = network_summary_new$self[update_position,]
-    network_summary$friends[update_position,] = network_summary_new$friends[update_position,]
-	  xb1[update_position] = xb1_new[update_position]
-	  xb2[update_position] = xb2_new[update_position]
+# 		p1 = splitBy(dnorm(ystar1 - xb1, log=TRUE),by=n2)
+# 		p2 = splitBy(dnorm(ystar2 - xb2, log=TRUE),by=n2)
+# 		p1_new = splitBy(dnorm(ystar1 - xb1_new, log=TRUE),by=n2)
+# 		p2_new = splitBy(dnorm(ystar2 - xb2_new, log=TRUE),by=n2)
 
-		xx1[update_position,delta_network_index] = network_summary$self[update_position,]
-		xx2[update_position,delta_network_index] = network_summary$friends[update_position,]
+# 		p1 = sapply(p1, sum)
+# 		p2 = sapply(p2, sum)
+# 		p1_new = sapply(p1_new, sum)
+# 		p2_new = sapply(p2_new, sum)
 
-		# test
-		# xx1_q = cbind(x1,network_summary$self)
-		# xx2_q = cbind(x2,network_summary$friends)
-
-		# network_summary_q = computeNetworkSummary2(seq_m=seq_m, D=D)
-		# xx1_q = cbind(x1,network_summary_q$self)
-		# xx2_q = cbind(x2,network_summary_q$friends)
-		# xb1_q = xx1_q %*% delta_matrix[i+1,]
-		# xb2_q = xx2_q %*% delta_matrix[i+1,]
-
-		# identical(xx1,xx1_q)
-		# identical(xx2,xx2_q)
-
-		# identical(xb1,xb1_q)
-		# identical(xb2,xb2_q)
+# 		alpha = exp( p1_new+ p2_new - p1- p2  )
+# 		update_index = alpha  > runif(5)
+# 		seq_m[update_index] = seq_m_new[update_index]
+# 		update_rate = update_rate + update_index
 
 
-	}
-	toc()
+# 		update_position = unlist(postition[update_index])
+#     network_summary$self[update_position,] = network_summary_new$self[update_position,]
+#     network_summary$friends[update_position,] = network_summary_new$friends[update_position,]
+# 	  xb1[update_position] = xb1_new[update_position]
+# 	  xb2[update_position] = xb2_new[update_position]
+
+# 		xx1[update_position,delta_network_index] = network_summary$self[update_position,]
+# 		xx2[update_position,delta_network_index] = network_summary$friends[update_position,]
+
+# 		# test
+# 		# xx1_q = cbind(x1,network_summary$self)
+# 		# xx2_q = cbind(x2,network_summary$friends)
+
+# 		# network_summary_q = computeNetworkSummary(seq_m=seq_m, D=D)
+# 		# xx1_q = cbind(x1,network_summary_q$self)
+# 		# xx2_q = cbind(x2,network_summary_q$friends)
+# 		# xb1_q = xx1_q %*% delta_matrix[i+1,]
+# 		# xb2_q = xx2_q %*% delta_matrix[i+1,]
+
+# 		# identical(xx1,xx1_q)
+# 		# identical(xx2,xx2_q)
+
+# 		# identical(xb1,xb1_q)
+# 		# identical(xb2,xb2_q)
 
 
-	update_rate = update_rate/m
-	cat("Update rate : \n")
-	print(update_rate)
+# 	}
+# 	toc()
 
-	out = list(delta=tail(delta_matrix,-1) , seq_m=seq_m,ystar1=ystar1,ystar2=ystar2, tau=tau, update_rate=update_rate, index=index,ID=ID, name=name)
 
-	class(out) = "SNF_single"
-	out
-}
+# 	update_rate = update_rate/m
+# 	cat("Update rate : \n")
+# 	print(update_rate)
 
-merge.SNF_single = function(x,y,...){
-  out = y 
-  out$delta_matrix = rbind(x$delta_matrix, y$delta_matrix)
-  out 
-}
+# 	out = list(delta=tail(delta_matrix,-1) , seq_m=seq_m,ystar1=ystar1,ystar2=ystar2, tau=tau, update_rate=update_rate, index=index,ID=ID, name=name)
 
-getParameterMatrix.SNF_single = function(x ){
-  x$delta
-}
+# 	class(out) = "SNF_single"
+# 	out
+# }
+
+# merge.SNF_single = function(x,y,...){
+#   out = y 
+#   out$delta_matrix = rbind(x$delta_matrix, y$delta_matrix)
+#   out 
+# }
+
+# getParameterMatrix.SNF_single = function(x ){
+#   x$delta
+# }
 
 
 
@@ -457,7 +474,7 @@ getParameterMatrix.SNF_single = function(x ){
 # ## initialization 
 
 
-# network_summary = computeNetworkSummary2(seq_m=seq_m, D=D)
+# network_summary = computeNetworkSummary(seq_m=seq_m, D=D)
 
 # xx1 = cbind(x1,network_summary$self)
 # xx2 = cbind(x2,network_summary$friends)
@@ -480,15 +497,15 @@ getParameterMatrix.SNF_single = function(x ){
 # for (i in 1:m){
 # 	## base on the seq, compute the network summary
 # 	## draw ystar
-# 	network_summary = computeNetworkSummary2(seq_m=seq_m, D=D)
+# 	network_summary = computeNetworkSummary(seq_m=seq_m, D=D)
 
 # 	xx1 = cbind(x1,network_summary$self)
 # 	xx2 = cbind(x2,network_summary$friends)
 # 	xb1 = xx1 %*% delta_matrix[1,]
 # 	xb2 = xx2 %*% delta_matrix[1,]
 
-# 	ystar1 = drawYstar_single(y=y , ystar_other=ystar2, mean=xb1, y_not= y_not)
-# 	ystar2 = drawYstar_single(y=y, ystar_other=ystar1, mean=xb2, y_not= y_not)
+# 	ystar1 = drawYstar(y=y , ystar_other=ystar2, mean=xb1, y_not= y_not)
+# 	ystar2 = drawYstar(y=y, ystar_other=ystar1, mean=xb2, y_not= y_not)
 
 # 	## draw delta
 # 	lm_fit = myFastLm(XX= rbind(xx1,xx2), yy = c(ystar1,ystar2))
@@ -715,7 +732,7 @@ getParameterMatrix.SNF_single = function(x ){
 # all(q1[[2]]==q2[[2]])
 
 
-# computeNetworkSummary2=function(seq_m=seq_m_new, D=D){
+# computeNetworkSummary=function(seq_m=seq_m_new, D=D){
 #   # out = list()
 #   # for (i in 1:length(D)){
 #   #   temp = computeNetworkSummary(g(seq_m=seq_m[[i]], D=D[[i]]))
@@ -735,7 +752,7 @@ getParameterMatrix.SNF_single = function(x ){
 #   list(self=self,friends=friends)
 # })
 
-# # q1 = computeNetworkSummary2(seq_m,D)
+# # q1 = computeNetworkSummary(seq_m,D)
 
 
 # computeConditionalVariance = function(Sigma){
@@ -754,7 +771,7 @@ getParameterMatrix.SNF_single = function(x ){
 # update_seq_multi = function(seq_m, D_list, xb1, xb2, x1_network, x2_network, delta_network_index, ystar1,ystar2, Sigma,n2,update_rate, tau){
 #     seq_m_new = DrawSeqSample(seq_m,p=tau)
 
-#     network_summary_new = lapply(D_list,computeNetworkSummary2, seq_m=seq_m_new )
+#     network_summary_new = lapply(D_list,computeNetworkSummary, seq_m=seq_m_new )
 
 #     x1_network_new = do.call(cbind, lapply(network_summary_new, "[[", "self")) 
 #     x2_network_new = do.call(cbind, lapply(network_summary_new, "[[", "friends")) 
@@ -826,7 +843,7 @@ getParameterMatrix.SNF_single = function(x ){
 
 
 
-# SNF_single_mcmc = function(m, data, network_id, last_out, update_tau=TRUE,tau=0.005){
+# SNF_single_mcmc = function(m, data, network_id, last_estimation, update_tau=TRUE,tau=0.005){
 
 #   if (network_id==1){
 #     D = lapply(data, function(z) z$W!=0 )
@@ -854,19 +871,19 @@ getParameterMatrix.SNF_single = function(x ){
 #   update_rate = 0
 
 
-#   if (!missing(last_out) && !is.null(last_out) ){
-#     cat("Using last_out \n")
-#     ystar1 = last_out$ystar1
-#     ystar2 = last_out$ystar2
-#     seq_m = last_out$seq_m
-#     delta_matrix[1,] = as.vector(tail(last_out$delta,1))
+#   if (!missing(last_estimation) && !is.null(last_estimation) ){
+#     cat("Using last_estimation \n")
+#     ystar1 = last_estimation$ystar1
+#     ystar2 = last_estimation$ystar2
+#     seq_m = last_estimation$seq_m
+#     delta_matrix[1,] = as.vector(tail(last_estimation$delta,1))
     
 #     if (update_tau){
-#       tau = last_out$tau 
+#       tau = last_estimation$tau 
 #       for ( j in 1:length(tau)){
-#         if (any(last_out$update_rate[[j]] >0.5 | any(last_out$update_rate[[j]]< 0.2) )){
+#         if (any(last_estimation$update_rate[[j]] >0.5 | any(last_estimation$update_rate[[j]]< 0.2) )){
 #           cat("update tau-", j , "\n")
-#           tau[[j]] = tau[[j]] * last_out$update_rate[[j]] / 0.4
+#           tau[[j]] = tau[[j]] * last_estimation$update_rate[[j]] / 0.4
 #           tau[[j]] = ifelse(tau[[j]]==0, 0.0001, tau[[j]])
 #         }
 #       }
@@ -874,7 +891,7 @@ getParameterMatrix.SNF_single = function(x ){
 #   }
 
 #   ## initialization 
-#   network_summary = computeNetworkSummary2(seq_m=seq_m, D=D)
+#   network_summary = computeNetworkSummary(seq_m=seq_m, D=D)
 
 #   xx1 = cbind(x1,network_summary$self)
 #   xx2 = cbind(x2,network_summary$friends)
@@ -892,8 +909,8 @@ getParameterMatrix.SNF_single = function(x ){
 #     ## base on the seq, compute the network summary
 #     ## draw ystar
 
-#     ystar1 = drawYstar_single(y=y , ystar_other=ystar2, mean=xb1, y_not= y_not)
-#     ystar2 = drawYstar_single(y=y, ystar_other=ystar1, mean=xb2, y_not= y_not)
+#     ystar1 = drawYstar(y=y , ystar_other=ystar2, mean=xb1, y_not= y_not)
+#     ystar2 = drawYstar(y=y, ystar_other=ystar1, mean=xb2, y_not= y_not)
 
 #     ## draw delta
 #     lm_fit = my.fastLm(XX= rbind(xx1,xx2), yy = c(ystar1,ystar2))
@@ -908,7 +925,7 @@ getParameterMatrix.SNF_single = function(x ){
 
 #     ## update sequence 
 #     seq_m_new = DrawSeqSample(seq_m,p=tau)
-#     network_summary_new = computeNetworkSummary2(seq_m=seq_m_new, D=D)
+#     network_summary_new = computeNetworkSummary(seq_m=seq_m_new, D=D)
 
 #     xb1_new = R1 + network_summary_new$self %*% delta_matrix[i+1,delta_network_index]
 #     xb2_new = R2 + network_summary_new$friends %*% delta_matrix[i+1,delta_network_index]
@@ -1003,8 +1020,19 @@ getParameterMatrix.SNF_single = function(x ){
 
 
 
-
-SNF_multi_mcmc = function(m, data, last_out, update_tau=TRUE,tau=0.005){
+#' Description Strategy Network Formation
+#' @name SNF
+#' @aliases SNF
+#' @title Strategy Network Formation
+#' @param m m
+#' @param data data
+#' @param last_estimation last_estimation
+#' @param update_tau update_tau
+#' @param tau tau 
+#' @return SNF object
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+SNF = function(m, data, last_estimation, update_tau=TRUE,tau=0.005){
 
   G = length(data)
   number_of_network = length(data[[1]]$D_list)
@@ -1044,27 +1072,23 @@ SNF_multi_mcmc = function(m, data, last_out, update_tau=TRUE,tau=0.005){
     delta[,i] = delta_matrix[[i]][1,]
   }
 
-
-
-
   update_rate = 0
   Sigma = diag(number_of_network)
 
-
-  if (!missing(last_out) && !is.null(last_out) ){
-    cat("Using last_out \n")
-    ystar1 = last_out$ystar1
-    ystar2 = last_out$ystar2
-    seq_m = last_out$seq_m
-    delta = last_out$delta
-    Sigma = last_out$Sigma
+  if (!missing(last_estimation) && !is.null(last_estimation) ){
+    cat("Using last_estimation \n")
+    ystar1 = last_estimation$ystar1
+    ystar2 = last_estimation$ystar2
+    seq_m = last_estimation$seq_m
+    delta = last_estimation$delta
+    Sigma = last_estimation$Sigma
 
     if (update_tau){
-      tau = last_out$tau 
+      tau = last_estimation$tau 
       for ( j in 1:length(tau)){
-        if (any(last_out$update_rate[[j]] >0.5 | any(last_out$update_rate[[j]]< 0.2) )){
+        if (any(last_estimation$update_rate[[j]] >0.5 | any(last_estimation$update_rate[[j]]< 0.2) )){
           cat("update tau-", j , "\n")
-          tau[[j]] = tau[[j]] * last_out$update_rate[[j]] / 0.4
+          tau[[j]] = tau[[j]] * last_estimation$update_rate[[j]] / 0.4
           tau[[j]] = ifelse(tau[[j]]==0, 0.0001, tau[[j]])
         }
       }
@@ -1073,14 +1097,11 @@ SNF_multi_mcmc = function(m, data, last_out, update_tau=TRUE,tau=0.005){
 
   ## initialization 
 
-  network_summary = lapply(D_list,computeNetworkSummary2, seq_m=seq_m )
+  network_summary = lapply(D_list,computeNetworkSummary, seq_m=seq_m )
 
   ## repeat that for serial D.
 
   # network_summary reduce to 1 variable ( # of common frds, then include all the network , or we can have all, it would be 3 x number of network )
-
-  
-
 
   x1_network = do.call(cbind, lapply(network_summary, "[[", "self")) 
   x2_network = do.call(cbind, lapply(network_summary, "[[", "friends"))               
@@ -1098,7 +1119,6 @@ SNF_multi_mcmc = function(m, data, last_out, update_tau=TRUE,tau=0.005){
 
   rownames(delta) = c( colnames(x1) , colnames(x1_network) )
 
-
   colname_network = colnames(x1_network)[1:3]
 
   colname_network = unlist( lapply(network_name, function(z) z %+% "_" %+% colname_network) )
@@ -1109,13 +1129,16 @@ SNF_multi_mcmc = function(m, data, last_out, update_tau=TRUE,tau=0.005){
   }
   X= rbind(x1,x2)
 
-  number_col_Sigma_matrix = number_of_network*(number_of_network-1)/2
+  if (number_of_network>1){
+    number_col_Sigma_matrix = number_of_network*(number_of_network-1)/2
+    sigma_name = genPairwiseIndex(number_of_network)
+    sigma_name = sigma_name[,1] %+% sigma_name[,2]
+  } else {
+    number_col_Sigma_matrix =1
+    sigma_name = 11
+  }
   Sigma_matrix = matrix(0, nrow=m, ncol = number_col_Sigma_matrix )
-  sigma_name = genPairwiseIndex(number_of_network)
-  sigma_name = sigma_name[,1] %+% sigma_name[,2]
   colnames(Sigma_matrix) = "Sigma_" %+%  sigma_name
-
-
 
   tic()
   ## start the gibbs
@@ -1129,11 +1152,11 @@ SNF_multi_mcmc = function(m, data, last_out, update_tau=TRUE,tau=0.005){
 
       temp = find_normal_conditional_dist(a= ystar1_demean, i=j, j=-j, Sigma=Sigma)
 
-      ystar1[,j] = drawYstar_single(y=y[,j] , ystar_other=ystar2[,j], mean=xb1[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
+      ystar1[,j] = drawYstar(y=y[,j] , ystar_other=ystar2[,j], mean=xb1[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
 
       temp = find_normal_conditional_dist(a= ystar2_demean, i=j, j=-j, Sigma=Sigma)
 
-      ystar2[,j] = drawYstar_single(y=y[,j] , ystar_other=ystar1[,j], mean=xb2[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
+      ystar2[,j] = drawYstar(y=y[,j] , ystar_other=ystar1[,j], mean=xb2[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
     }
 
     ystar1_demean = ystar1 - xb1
@@ -1163,7 +1186,7 @@ SNF_multi_mcmc = function(m, data, last_out, update_tau=TRUE,tau=0.005){
     ##### update sequence , only need to do it once. but may need to modify the likelihood 
     seq_m_new = DrawSeqSample(seq_m,p=tau)
 
-    network_summary_new = lapply(D_list,computeNetworkSummary2, seq_m=seq_m_new )
+    network_summary_new = lapply(D_list,computeNetworkSummary, seq_m=seq_m_new )
 
     x1_network_new = do.call(cbind, lapply(network_summary_new, "[[", "self")) 
     x2_network_new = do.call(cbind, lapply(network_summary_new, "[[", "friends")) 
@@ -1204,14 +1227,19 @@ SNF_multi_mcmc = function(m, data, last_out, update_tau=TRUE,tau=0.005){
     ystar_demean = rbind(ystar1_demean,ystar2_demean)
     
 
-    Sigma = solve( rwish(nn , solve( crossprod(ystar_demean )) ) )
-    normalization = diag(1/sqrt(diag(Sigma)))
+    if (number_of_network > 1 ){
+      Sigma = solve( rwish(nn , solve( crossprod(ystar_demean )) ) )
+      normalization = diag(1/sqrt(diag(Sigma)))
 
-    Sigma = normalization %*%  Sigma %*% t(normalization) 
-    Sigma_matrix[i,] = Sigma[lower.tri(Sigma)]
+      Sigma = normalization %*%  Sigma %*% t(normalization) 
+      Sigma_matrix[i,] = Sigma[lower.tri(Sigma)]
+    } else {
+      Sigma = as.matrix(1)
+      Sigma_matrix[i,] = 1
+    }
+
   }
   toc()
-
 
   update_rate = update_rate/m
   cat("Update rate : \n")
@@ -1219,44 +1247,74 @@ SNF_multi_mcmc = function(m, data, last_out, update_tau=TRUE,tau=0.005){
 
   out = list(delta_matrix=delta_matrix, delta=delta, seq_m=seq_m, ystar1=ystar1,ystar2=ystar2, tau=tau, update_rate=update_rate, Sigma=Sigma,Sigma_matrix=Sigma_matrix)
 
-  class(out) = "SNF_multi"
+  class(out) = "SNF"
   out
 }
 
-
-getParameterMatrix.SNF_multi = function(x){
-  out = do.call(cbind, x$delta_matrix)
-  out = cbind(out, x$Sigma_matrix)
+#' Description Get a matrix of parameter 
+#' @name getParameterMatrix.SNF
+#' @aliases getParameterMatrix.SNF
+#' @title getParameterMatrix.SNF
+#' @param x SNF object
+#' @param tail iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
+#'' @param ... not used
+#' @return A matrix
+#' @method getParameterMatrix SNF
+#' @S3method getParameterMatrix SNF
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+getParameterMatrix.SNF = function(x, tail, ...){
+  if (is.list(x$delta_matrix)){
+    out = do.call(cbind, x$delta_matrix)
+    out = cbind(out, x$Sigma_matrix )
+  } else{
+    out = x$delta_matrix
+  }
+  if (!missing(tail)) {
+    out = extractTail(out, tail)
+  }
   out
 }
 
+#' Description merge.SNF
+#' @name merge.SNF
+#' @aliases merge.SNF
+#' @title merge.SNF
+#' @param x First object to merge with
+#' @param y Second object to merge with 
+#' @param ... not used
+#' @return A new SNF object
+#' @method merge SNF
+#' @S3method merge SNF
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 
-merge.SNF_multi = function(x,y,...){
+merge.SNF = function(x,y,...){
   out = y 
 
   for (i in 1:length(y$delta_matrix)){
     out$delta_matrix[[i]] = rbind(x$delta_matrix[[i]], y$delta_matrix[[i]])
   }
 
-
   out$Sigma_matrix = rbind(x$Sigma_matrix, y$Sigma_matrix)
 
   out
 }
 
-# qq = SNF_multi_mcmc(1000,data,q)
-# q = merge(q,qq)
+#' Description Create a summary table
+#' @name summary.SNF
+#' @aliases summary.SNF
+#' @title summary.SNF
+#' @param object SNF object
+#' @param ... tail:  iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
+#' @return A summary table
+#' @method summary SNF
+#' @S3method summary SNF
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 
-
-
-
-
-SNF = function(m, data, last_out, update_tau=TRUE,tau=0.005){
-  number_of_network = length(data[[1]]$D_list)
-  if (number_of_network==1){
-    SNF_single_mcmc(m=m, data=data, last_out=last_out, update_tau=TRUE, tau=0.005)
-  } else {
-    SNF_multi_mcmc(m=m, data=data, last_out=last_out, update_tau=TRUE, tau=0.005)
-  }
-
+summary.SNF = function(object,...){
+  computeSummaryTable(object,...)
 }
+
+
