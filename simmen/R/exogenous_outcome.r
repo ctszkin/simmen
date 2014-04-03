@@ -1,3 +1,192 @@
+
+#' Estimate the exogenous version of the social interaction model with multiple networks
+#' @rdname peer_effect
+#' @name peer_effect
+#' @aliases peer_effect
+#' @aliases peer_effect.ols.spillover
+#' @aliases peer_effect.ols
+#' @aliases peer_effect.ols.contextual
+#' @aliases peer_effect.maxLik
+#' @title Peer effect
+#' @param data data
+#' @param method "maxLik" or "ols"
+#' @param type valid if method=="ols". "spillover": including X, WX and WY; "contexual": including X and WX; "ols": only include X
+#' @return Summary table
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+peer_effect = function(data, method = c("maxLik","ols"),type=c("spillover","contextual","ols") ){
+  method = match.arg(method)
+  type = match.arg(type)
+
+  if (method == "maxLik"){
+    return(peer_effect.maxLik(data))
+  } else if (method=="ols"){
+    return(
+      switch(type,
+        spillover = peer_effect.ols.spillover(data),
+        contextual = peer_effect.ols.contextual(data),
+        ols = peer_effect.ols(data)
+      )
+    )
+  }
+}
+
+#' @rdname peer_effect
+#' @export
+peer_effect.ols.spillover = function(data){
+  data_matrix = genDataMatrix(data)
+  lm_fit = myFastLm(cbind(data_matrix$X,data_matrix$WY), data_matrix$Y)
+  out = generateSignificance(cbind(lm_fit$coefficients, sqrt(diag(lm_fit$cov)) ) )
+  row.names(out) = c( "phi_" %+% colnames(data_matrix$X) , "lambda_" %+% data[[1]]$network_name )
+  out
+}
+
+#' @rdname peer_effect
+#' @export
+peer_effect.ols = function(data){
+  data_matrix = genDataMatrix(data, any_wx=FALSE)
+  lm_fit = myFastLm(cbind(data_matrix$X), data_matrix$Y)
+  out = generateSignificance(cbind(lm_fit$coefficients, sqrt(diag(lm_fit$cov)) ) )
+  row.names(out) = c( "phi_" %+% colnames(data_matrix$X) )
+  out
+}
+
+#' @rdname peer_effect
+#' @export
+peer_effect.ols.contextual= function(data){
+  data_matrix = genDataMatrix(data)
+  lm_fit = myFastLm(cbind(data_matrix$X), data_matrix$Y)
+  out = generateSignificance(cbind(lm_fit$coefficients, sqrt(diag(lm_fit$cov)) ) )
+  row.names(out) = c( "phi_" %+% colnames(data_matrix$X) )
+  out
+}
+
+#' @rdname peer_effect
+#' @export
+peer_effect.maxLik =function(data){
+  data_matrix = genDataMatrix(data)
+
+  number_of_network = length(data_matrix$W_list[[1]])
+
+  lambda= rep(0, number_of_network )
+  for (i in 1:10){
+
+    new_y = data_matrix$Y - data_matrix$WY %*% lambda
+
+    phi = lm.fit(x=data_matrix$X, y=new_y)$coef
+    q1=maxLik(function(z, ...) lik_multi_exogenous(lambda=z,...), 
+      method="BFGS",
+      phi=phi,
+      start=lambda, 
+      X = data_matrix$X, 
+      Y = data_matrix$Y,
+      WY = data_matrix$WY,
+      W_list = data_matrix$W_list, 
+      n_vector = data_matrix$n_vector
+    )
+    lambda = q1$estimate
+  }
+
+  start0 = c(phi,lambda=lambda)
+
+  tic()
+  out = maxLik(function(z, ...) lik_multi_exogenous(phi=head(z,-number_of_network), lambda=tail(z,number_of_network), ...) , 
+    method="BFGS",
+    start=start0, 
+    X = data_matrix$X, 
+    Y = data_matrix$Y,
+    WY = data_matrix$WY,
+    W_list = data_matrix$W_list, 
+    n_vector = data_matrix$n_vector
+  )
+  toc()
+  
+  row_names = c("phi_" %+% colnames(data_matrix$X), "lambda_" %+% data[[1]]$network_name)
+
+  summary_table = generateSignificance(summary(out)$estimate[,1:2], row_names=row_names)
+
+  # c(list(out),list(summary_table))
+  summary_table
+}
+
+
+
+
+#' Compute the log of the determinant of I - \\sum_i \\lambda_i W_i 
+#' @name genLogDetGamma
+#' @aliases genLogDetGamma
+#' @title genLogDetGamma
+#' @param W_list a list of the weighting matrix
+#' @param lambda a vector of lambda
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+genLogDetGamma = function(W_list, lambda){
+  out = 0
+  for (i in 1:length(W_list)){
+    out = out - lambda[i] * W_list[[i]]
+  }
+  diag(out) = 1
+  determinant(out, logarithm=TRUE)$modulus
+}
+
+
+#' Compute the log likelihood of the social interaction model
+#' @name lik_multi_exogenous
+#' @aliases lik_multi_exogenous
+#' @title lik_multi_exogenous
+#' @param lambda lambda
+#' @param phi phi
+#' @param X X
+#' @param Y Y
+#' @param WY WY
+#' @param W_list W_list 
+#' @param n_vector n_vector
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+lik_multi_exogenous = function(lambda, phi, X, Y, WY, W_list, n_vector){
+
+  if (any(sum(abs(lambda))>=1)  ) 
+    return(-1e+20)
+
+  log_det_Gamma= 0 
+  new_y = NULL
+
+  G = length(n_vector)
+
+  for (i in 1:G){
+    log_det_Gamma = log_det_Gamma+ genLogDetGamma(W_list[[i]], lambda)
+  }
+
+  new_y = Y - WY %*% lambda
+
+  if (missing(phi)){
+    lm_fit = myFastLm(X=X, y=new_y)
+    phi = lm_fit$coef
+    varepsilon = lm_fit$residuals
+  } else {
+    varepsilon = new_y - X %*% phi
+  }
+
+  splitted_varepsilon = split(varepsilon, rep(1:G, n_vector))
+  loglik_varepsilon = sum(
+    sapply(splitted_varepsilon, function(z) {
+      -(length(z)-1)/2*log(sum(z^2)/(length(z)-1))
+    })
+  )
+
+  out = loglik_varepsilon + log_det_Gamma - G * log(1 - sum(lambda))
+
+  # out = -(n-1)/2 * log(sum(varepsilon^2)/(n-1)) + log_det_Gamma - length(data) * log(1 - sum(lambda))
+  if (!is.finite(out)){
+    out = -1e+20
+  }
+  out
+}
+
+
+
 # lik_single_exogenous2 = function(lambda, phi, data, network_id=1){
 #   if (abs(lambda)>1)
 #     return(-1e+20)
@@ -150,156 +339,4 @@
 #   row.names(out) = c(head(colnames(X),-2),data[[1]]$network_name %+% "_y")
 #   out
 # })
-
-
-#' Description peer_effect
-#' @name peer_effect
-#' @aliases peer_effect
-#' @title peer_effect
-#' @param data data
-#' @param method "maxLik" or "ols"
-#' @param type valid if method=="ols". "spillover": including X, WX and WY; "contexual": including X and WX; "ols": only include X
-#' @return Summary table
-#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
-#' @export
-peer_effect = function(data, method = c("maxLik","ols"),type=c("spillover","contextual","ols") ){
-  method = match.arg(method)
-  type = match.arg(type)
-
-  if (method == "maxLik"){
-    return(peer_effect_exogenous(data))
-  } else if (method=="ols"){
-    retrun(
-      switch(type,
-        spillover = peer_effect_ols(data),
-        contextual = peer_effect_ols_contextual_only(data),
-        ols = ols(data)
-      )
-    )
-  }
-}
-
-peer_effect_ols = function(data){
-  data_matrix = genDataMatrix(data)
-  lm_fit = myFastLm(cbind(data_matrix$X,data_matrix$WY), data_matrix$Y)
-  out = generateSignificance(cbind(lm_fit$coefficients, sqrt(diag(lm_fit$cov)) ) )
-  row.names(out) = c( "phi_" %+% colnames(data_matrix$X) , "lambda_" %+% data[[1]]$network_name )
-  out
-}
-
-ols = function(data){
-  data_matrix = genDataMatrix(data, any_wx=FALSE)
-  lm_fit = myFastLm(cbind(data_matrix$X), data_matrix$Y)
-  out = generateSignificance(cbind(lm_fit$coefficients, sqrt(diag(lm_fit$cov)) ) )
-  row.names(out) = c( "phi_" %+% colnames(data_matrix$X) )
-  out
-}
-
-peer_effect_ols_contextual_only= function(data){
-  data_matrix = genDataMatrix(data)
-  lm_fit = myFastLm(cbind(data_matrix$X), data_matrix$Y)
-  out = generateSignificance(cbind(lm_fit$coefficients, sqrt(diag(lm_fit$cov)) ) )
-  row.names(out) = c( "phi_" %+% colnames(data_matrix$X) )
-  out
-}
-
-
-
-
-genLogDetGamma = function(W_list, lambda){
-  out = 0
-  for (i in 1:length(W_list)){
-    out = out - lambda[i] * W_list[[i]]
-  }
-  diag(out) = 1
-  determinant(out, logarithm=TRUE)$modulus
-}
-
-
-lik_multi_exogenous = function(lambda, phi, X, Y, WY, W_list, n_vector){
-
-  if (any(sum(abs(lambda))>=1)  ) 
-    return(-1e+20)
-
-  log_det_Gamma= 0 
-  new_y = NULL
-
-  G = length(n_vector)
-
-  for (i in 1:G){
-    log_det_Gamma = log_det_Gamma+ genLogDetGamma(W_list[[i]], lambda)
-  }
-
-  new_y = Y - WY %*% lambda
-
-  if (missing(phi)){
-    lm_fit = myFastLm(X=X, y=new_y)
-    phi = lm_fit$coef
-    varepsilon = lm_fit$residuals
-  } else {
-    varepsilon = new_y - X %*% phi
-  }
-
-  splitted_varepsilon = split(varepsilon, rep(1:G, n_vector))
-  loglik_varepsilon = sum(
-    sapply(splitted_varepsilon, function(z) {
-      -(length(z)-1)/2*log(sum(z^2)/(length(z)-1))
-    })
-  )
-
-  out = loglik_varepsilon + log_det_Gamma - G * log(1 - sum(lambda))
-
-  # out = -(n-1)/2 * log(sum(varepsilon^2)/(n-1)) + log_det_Gamma - length(data) * log(1 - sum(lambda))
-  if (!is.finite(out)){
-    out = -1e+20
-  }
-  out
-}
-
-
-peer_effect_exogenous =function(data){
-  data_matrix = genDataMatrix(data)
-
-  number_of_network = length(data_matrix$W_list[[1]])
-
-  lambda= rep(0, number_of_network )
-  for (i in 1:10){
-
-    new_y = data_matrix$Y - data_matrix$WY %*% lambda
-
-    phi = lm.fit(x=data_matrix$X, y=new_y)$coef
-    q1=maxLik(function(z, ...) lik_multi_exogenous(lambda=z,...), 
-      method="BFGS",
-      phi=phi,
-      start=lambda, 
-      X = data_matrix$X, 
-      Y = data_matrix$Y,
-      WY = data_matrix$WY,
-      W_list = data_matrix$W_list, 
-      n_vector = data_matrix$n_vector
-    )
-    lambda = q1$estimate
-  }
-
-  start0 = c(phi,lambda=lambda)
-
-  tic()
-  out = maxLik(function(z, ...) lik_multi_exogenous(phi=head(z,-number_of_network), lambda=tail(z,number_of_network), ...) , 
-    method="BFGS",
-    start=start0, 
-    X = data_matrix$X, 
-    Y = data_matrix$Y,
-    WY = data_matrix$WY,
-    W_list = data_matrix$W_list, 
-    n_vector = data_matrix$n_vector
-  )
-  toc()
-  
-  row_names = c("phi_" %+% colnames(data_matrix$X), "lambda_" %+% data[[1]]$network_name)
-
-  summary_table = generateSignificance(summary(out)$estimate[,1:2], row_names=row_names)
-
-  # c(list(out),list(summary_table))
-  summary_table
-}
 

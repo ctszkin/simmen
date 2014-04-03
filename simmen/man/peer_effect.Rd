@@ -1,0 +1,39 @@
+\name{peer_effect}
+\alias{peer_effect}
+\alias{peer_effect.maxLik}
+\alias{peer_effect.ols}
+\alias{peer_effect.ols.contextual}
+\alias{peer_effect.ols.spillover}
+\title{Peer effect}
+\usage{
+peer_effect(data, method = c("maxLik", "ols"), type = c("spillover",
+  "contextual", "ols"))
+
+peer_effect.ols.spillover(data)
+
+peer_effect.ols(data)
+
+peer_effect.ols.contextual(data)
+
+peer_effect.maxLik(data)
+}
+\arguments{
+  \item{data}{data}
+
+  \item{method}{"maxLik" or "ols"}
+
+  \item{type}{valid if method=="ols". "spillover":
+  including X, WX and WY; "contexual": including X and WX;
+  "ols": only include X}
+}
+\value{
+Summary table
+}
+\description{
+Estimate the exogenous version of the social interaction
+model with multiple networks
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+

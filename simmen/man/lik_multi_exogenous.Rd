@@ -1,0 +1,31 @@
+\name{lik_multi_exogenous}
+\alias{lik_multi_exogenous}
+\title{lik_multi_exogenous}
+\usage{
+lik_multi_exogenous(lambda, phi, X, Y, WY, W_list, n_vector)
+}
+\arguments{
+  \item{lambda}{lambda}
+
+  \item{phi}{phi}
+
+  \item{X}{X}
+
+  \item{Y}{Y}
+
+  \item{WY}{WY}
+
+  \item{W_list}{W_list}
+
+  \item{n_vector}{n_vector}
+}
+\value{
+value
+}
+\description{
+Compute the log likelihood of the social interaction model
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+
