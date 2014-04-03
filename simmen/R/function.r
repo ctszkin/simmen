@@ -1,4 +1,4 @@
-#' @import Rcpp RcppEigen RcppArmadillo Jmisc SESHK2011 MASS foreach mvtnorm parallel maxLik plyr truncnorm Matrix MCMCpack Formula
+#' @import Jmisc SESHK2011 MASS foreach mvtnorm parallel maxLik plyr truncnorm Matrix MCMCpack Formula
 NULL
 
 extractTail = function(x, tail=0){
