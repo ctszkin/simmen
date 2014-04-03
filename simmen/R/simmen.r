@@ -790,14 +790,10 @@ merge.simmen = function(x,y,...){
 }
 
 
-peer_effect_endogenous = function(...){
-  multi_endogenous_mcmc(...)
-}
-
 
 
 plotmcmc2.simmen = function(x, name, file="mcmc_plot.pdf", tail=10000){
-  xx = lapply(x, getParameterMatrix.single_endogenous)
+  xx = lapply(x, getParameterMatrix)
   plotmcmc2.default(xx, name=name, tail=tail )
 }
 
@@ -816,65 +812,65 @@ getParameterMatrix.simmen = function(x,tail){
 
 
 plotmcmc.simmen = function(x, tail=-0.2){
-  x11(20,20)
+  #x11(20,20)
   plotmcmc(cbind(x$phi,x$rho,x$lambda), tail=tail)
-  x11(20,20)
+  #x11(20,20)
   plotmcmc.default(cbind(do.call(cbind, x$delta),x$Sigma_matrix), tail=tail )
 }
 
 
-plotmcmc3 = function(x,tail){
-  tmp = cbind(x$rho, x$delta[[1]][,27+4], x$delta[[2]][,27+4] )
-  colnames(tmp) = c( colnames(x$rho), colnames(x$delta[[1]])[27+4], colnames(x$delta[[2]])[27+4] )
-  if (!missing(tail)){
-    tmp = tail(tmp,tail)
-  }
-  plotmcmc.default(tmp)
-}
+# plotmcmc3 = function(x,tail){
+#   tmp = cbind(x$rho, x$delta[[1]][,27+4], x$delta[[2]][,27+4] )
+#   colnames(tmp) = c( colnames(x$rho), colnames(x$delta[[1]])[27+4], colnames(x$delta[[2]])[27+4] )
+#   if (!missing(tail)){
+#     tmp = tail(tmp,tail)
+#   }
+#   plotmcmc.default(tmp)
+# }
 
 
-plotmcmc4 = function(x,tail=NA){
-  parameter_obj = lapply(x, function(z) {
-    out =cbind(z$rho, z$delta[[1]][,27+4], z$delta[[2]][,27+4] )
-    colnames(out) = c( colnames(z$rho), colnames(z$delta[[1]])[27+4], colnames(z$delta[[2]])[27+4] )
-    if (!is.na(tail)){
-      out = tail(out,tail)
-    }
-    out
-  }
-  )
+# plotmcmc4 = function(x,tail=NA){
+#   parameter_obj = lapply(x, function(z) {
+#     out =cbind(z$rho, z$delta[[1]][,27+4], z$delta[[2]][,27+4] )
+#     colnames(out) = c( colnames(z$rho), colnames(z$delta[[1]])[27+4], colnames(z$delta[[2]])[27+4] )
+#     if (!is.na(tail)){
+#       out = tail(out,tail)
+#     }
+#     out
+#   }
+#   )
 
-  par(mfrow=c(2,2))
-  for (i in 1:4){
-    tmp = foreach( j=parameter_obj, .combine=cbind) %do% {
-      j[,i]
-    }
-    matplot(tmp,type='l')
-    title(colnames(j)[i])
-  }
-}
+#   par(mfrow=c(2,2))
+#   for (i in 1:4){
+#     tmp = foreach( j=parameter_obj, .combine=cbind) %do% {
+#       j[,i]
+#     }
+#     matplot(tmp,type='l')
+#     title(colnames(j)[i])
+#   }
+# }
 
-plotmcmc5 = function(x,tail=NA){
-  parameter_obj = lapply(x, function(z) {
-    out =cbind(z$rho, z$delta[[1]][,27], z$delta[[2]][,27] )
-    colnames(out) = c( colnames(z$rho), colnames(z$delta[[1]])[27], colnames(z$delta[[2]])[27] )
-    if (!is.na(tail)){
-      out = tail(out,tail)
-    }
-    out=apply(out, 2, cumsum) / (1:nrow(out))
-    out
-  }
-  )
+# plotmcmc5 = function(x,tail=NA){
+#   parameter_obj = lapply(x, function(z) {
+#     out =cbind(z$rho, z$delta[[1]][,27], z$delta[[2]][,27] )
+#     colnames(out) = c( colnames(z$rho), colnames(z$delta[[1]])[27], colnames(z$delta[[2]])[27] )
+#     if (!is.na(tail)){
+#       out = tail(out,tail)
+#     }
+#     out=apply(out, 2, cumsum) / (1:nrow(out))
+#     out
+#   }
+#   )
 
-  par(mfrow=c(2,2))
-  for (i in 1:4){
-    tmp = foreach( j=parameter_obj, .combine=cbind) %do% {
-      j[,i]
-    }
-    matplot(tmp,type='l',lty=1)
-    title(colnames(j)[i])
-  }
-}
+#   par(mfrow=c(2,2))
+#   for (i in 1:4){
+#     tmp = foreach( j=parameter_obj, .combine=cbind) %do% {
+#       j[,i]
+#     }
+#     matplot(tmp,type='l',lty=1)
+#     title(colnames(j)[i])
+#   }
+# }
 
 
 

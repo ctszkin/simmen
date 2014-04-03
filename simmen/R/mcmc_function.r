@@ -159,6 +159,7 @@ loadFirstObject = function(foldername){
 
 
 readAllLastObject = function(){
+  i=NULL
   foreach (i = checkFolder()) %do% {
     loadLastObject(i %+% "/")
   }
@@ -176,58 +177,58 @@ readAllObject = function(path, except){
   as.list(env1)
 }
 
-readResult = function(path=".", start=6, data){
-  e1 = new.env()
-  sapply(path %+% "/" %+% dir(path), load, envir = e1)
+# readResult = function(path=".", start=6, data){
+#   e1 = new.env()
+#   sapply(path %+% "/" %+% dir(path), load, envir = e1)
 
-  name = createVariableName(data)
-  summary_list = 
-    lapply(start:length(as.list(e1)), function(i) {
-      out_obj = get("out"%+%i, envir = e1)
-      summary.mcmc(out_obj, name=name)
-    })
+#   name = createVariableName(data)
+#   summary_list = 
+#     lapply(start:length(as.list(e1)), function(i) {
+#       out_obj = get("out"%+%i, envir = e1)
+#       summary.mcmc(out_obj, name=name)
+#     })
 
-  m = sum(
-    sapply(start:length(as.list(e1)), function(i) {
-      out_obj = get("out"%+%i, envir = e1)
-      nrow(out_obj$lambda_matrix)
-    })
-  )
+#   m = sum(
+#     sapply(start:length(as.list(e1)), function(i) {
+#       out_obj = get("out"%+%i, envir = e1)
+#       nrow(out_obj$lambda_matrix)
+#     })
+#   )
 
-  mean_var = rowMeans( sapply(summary_list, function(i) i[,2] ) )
-  var_mean = apply(sapply(summary_list, function(i) i[,1 ]) , 1 , function(j)  mean((j-mean(j))^2) )
+#   mean_var = rowMeans( sapply(summary_list, function(i) i[,2] ) )
+#   var_mean = apply(sapply(summary_list, function(i) i[,1 ]) , 1 , function(j)  mean((j-mean(j))^2) )
 
-  all_mean = rowMeans(sapply(summary_list, function(i) i[,1 ]))
-  all_var = mean_var + var_mean
-  all_sd = sqrt(all_var)
-  all_t = all_mean/all_sd
+#   all_mean = rowMeans(sapply(summary_list, function(i) i[,1 ]))
+#   all_var = mean_var + var_mean
+#   all_sd = sqrt(all_var)
+#   all_t = all_mean/all_sd
 
-  star <- ifelse(abs(all_t)>1.64,"*"," ") 
-  star <- star %+% ifelse(abs(all_t)>1.96,"*"," ") 
-  star <- star %+% ifelse(abs(all_t)>2.34,"*"," ")  
+#   star <- ifelse(abs(all_t)>1.64,"*"," ") 
+#   star <- star %+% ifelse(abs(all_t)>1.96,"*"," ") 
+#   star <- star %+% ifelse(abs(all_t)>2.34,"*"," ")  
 
-  summary_table = data.frame(mean= all_mean, sd= sqrt(all_var),t=all_t, star=star)
-  row.names(summary_table) = name
+#   summary_table = data.frame(mean= all_mean, sd= sqrt(all_var),t=all_t, star=star)
+#   row.names(summary_table) = name
 
-  out = list( summary_table=summary_table,   m=m)
+#   out = list( summary_table=summary_table,   m=m)
 
-  # all_list = 
-  #   lapply(1:length(e1), function(i) {
-  #     out_obj = get("out"%+%i, envir = e1)
-  #     merge.mcmc(out_obj, name=name)
-  #   })
-  # q = do.call(rbind,all_list)
-  # colnames(q) = name
+#   # all_list = 
+#   #   lapply(1:length(e1), function(i) {
+#   #     out_obj = get("out"%+%i, envir = e1)
+#   #     merge.mcmc(out_obj, name=name)
+#   #   })
+#   # q = do.call(rbind,all_list)
+#   # colnames(q) = name
 
-  # all_mean2 = colMeans(q)
-  # all_var2 = apply(q,2,function(j)  mean((j-mean(j))^2) )
+#   # all_mean2 = colMeans(q)
+#   # all_var2 = apply(q,2,function(j)  mean((j-mean(j))^2) )
 
 
-  # sum(abs(all_mean-all_mean2) )
-  # sum(abs(all_var-all_var2))
+#   # sum(abs(all_mean-all_mean2) )
+#   # sum(abs(all_var-all_var2))
 
-  return(out)
-}
+#   return(out)
+# }
 
 var2 = function(x){
   if (is.matrix(x))
@@ -635,7 +636,7 @@ compareMCMC2 = function(x){
     var_ratio=var_ratio,
     var_con=var_con
   )
-
+  i=NULL
   not_converge = foreach(i = x) %do% generateSignificance(i[,c("mean","sd")], name)[!converge1,]
 
   not_converge_summary_table_simple = summary_table_simple[!converge1,]
