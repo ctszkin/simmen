@@ -1,11 +1,11 @@
-\name{getParameterMatrix.network_formation.mcmc}
-\alias{getParameterMatrix.network_formation.mcmc}
-\title{getParameterMatrix.network_formation.mcmc}
+\name{getParameterMatrix.SNF.static.mcmc}
+\alias{getParameterMatrix.SNF.static.mcmc}
+\title{getParameterMatrix.SNF.static.mcmc}
 \usage{
-\method{getParameterMatrix}{network_formation.mcmc}(x, tail, ...)
+\method{getParameterMatrix}{SNF.static.mcmc}(x, tail, ...)
 }
 \arguments{
-  \item{x}{network_formation}
+  \item{x}{SNF.static.mcmc}
 
   \item{tail}{iteration to be used. Negative value:
   Removing the first \code{tail} iterations. Positive

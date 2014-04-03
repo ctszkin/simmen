@@ -1,8 +1,8 @@
-\name{merge.SNF}
-\alias{merge.SNF}
-\title{merge.SNF}
+\name{merge.SNF.static.mcmc}
+\alias{merge.SNF.static.mcmc}
+\title{merge.SNF.static.mcmc}
 \usage{
-\method{merge}{SNF}(x, y, ...)
+\method{merge}{SNF.static.mcmc}(x, y, ...)
 }
 \arguments{
   \item{x}{First object to merge with}
@@ -12,10 +12,10 @@
   \item{...}{not used}
 }
 \value{
-A new SNF object
+A new SNF.static.mcmc object
 }
 \description{
-Description merge.SNF
+Description merge.SNF.static.mcmc
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

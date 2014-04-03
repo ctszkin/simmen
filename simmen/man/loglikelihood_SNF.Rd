@@ -1,8 +1,8 @@
-\name{loglikelihood_network_formation}
-\alias{loglikelihood_network_formation}
-\title{loglikelihood_network_formation}
+\name{loglikelihood_SNF}
+\alias{loglikelihood_SNF}
+\title{loglikelihood_SNF}
 \usage{
-loglikelihood_network_formation(y, x1, x2, delta, y_not)
+loglikelihood_SNF(y, x1, x2, delta, y_not)
 }
 \arguments{
   \item{y}{indicator of whether i and j is connected}
@@ -19,7 +19,7 @@ loglikelihood_network_formation(y, x1, x2, delta, y_not)
 value of log likelihood
 }
 \description{
-Description loglikelihood_network_formation
+Description loglikelihood_SNF
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

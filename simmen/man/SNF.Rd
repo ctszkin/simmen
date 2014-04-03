@@ -1,19 +1,18 @@
 \name{SNF}
 \alias{SNF}
-\title{Strategy Network Formation}
+\title{SNF}
 \usage{
-SNF(m, data, last_estimation, update_tau = TRUE, tau = 0.005)
+SNF(data, method = c("static.maxLik", "static.mcmc", "dynamic.mcmc"), ...)
 }
 \arguments{
-  \item{m}{m}
-
   \item{data}{data}
 
-  \item{last_estimation}{last_estimation}
+  \item{method}{Estimation method, either
+  "static.maxLik","static.mcmc","dynamic.mcmc". Default is
+  "static.maxLik"}
 
-  \item{update_tau}{update_tau}
-
-  \item{tau}{tau}
+  \item{...}{others argument. See \link{SNF.static.maxLik},
+  \link{SNF.static.mcmc}, \link{SNF.dynamic.mcmc}}
 }
 \value{
 SNF object

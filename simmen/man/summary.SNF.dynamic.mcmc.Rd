@@ -1,11 +1,11 @@
-\name{summary.SNF}
-\alias{summary.SNF}
-\title{summary.SNF}
+\name{summary.SNF.dynamic.mcmc}
+\alias{summary.SNF.dynamic.mcmc}
+\title{summary.SNF.dynamic.mcmc}
 \usage{
-\method{summary}{SNF}(object, ...)
+\method{summary}{SNF.dynamic.mcmc}(object, ...)
 }
 \arguments{
-  \item{object}{SNF object}
+  \item{object}{SNF.dynamic.mcmc object}
 
   \item{...}{tail: iteration to be used. Negative value:
   Removing the first \code{tail} iterations. Positive

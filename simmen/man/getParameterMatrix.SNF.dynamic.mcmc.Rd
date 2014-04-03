@@ -1,11 +1,11 @@
-\name{getParameterMatrix.SNF}
-\alias{getParameterMatrix.SNF}
-\title{getParameterMatrix.SNF}
+\name{getParameterMatrix.SNF.dynamic.mcmc}
+\alias{getParameterMatrix.SNF.dynamic.mcmc}
+\title{getParameterMatrix.SNF.dynamic.mcmc}
 \usage{
-\method{getParameterMatrix}{SNF}(x, tail, ...)
+\method{getParameterMatrix}{SNF.dynamic.mcmc}(x, tail, ...)
 }
 \arguments{
-  \item{x}{SNF object}
+  \item{x}{SNF.dynamic.mcmc object}
 
   \item{tail}{iteration to be used. Negative value:
   Removing the first \code{tail} iterations. Positive

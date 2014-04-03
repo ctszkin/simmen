@@ -1,11 +1,11 @@
-\name{summary.network_formation.mcmc}
-\alias{summary.network_formation.mcmc}
-\title{summary.network_formation.mcmc}
+\name{summary.SNF.static.mcmc}
+\alias{summary.SNF.static.mcmc}
+\title{summary.SNF.static.mcmc}
 \usage{
-\method{summary}{network_formation.mcmc}(object, ...)
+\method{summary}{SNF.static.mcmc}(object, ...)
 }
 \arguments{
-  \item{object}{network_formation object}
+  \item{object}{SNF.static.mcmc object}
 
   \item{...}{tail: iteration to be used. Negative value:
   Removing the first \code{tail} iterations. Positive

@@ -1,8 +1,8 @@
-\name{network_formation.mcmc}
-\alias{network_formation.mcmc}
-\title{network_formation.mcmc}
+\name{SNF.static.mcmc}
+\alias{SNF.static.mcmc}
+\title{SNF.static.mcmc}
 \usage{
-network_formation.mcmc(data, m = 1000, last_estimation, ...)
+SNF.static.mcmc(data, m = 1000, last_estimation, ...)
 }
 \arguments{
   \item{data}{data}
@@ -13,11 +13,8 @@ network_formation.mcmc(data, m = 1000, last_estimation, ...)
 
   \item{...}{not used}
 }
-\value{
-network_formation object
-}
 \description{
-Description network_formation.mcmc
+Description SNF.static.mcmc
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

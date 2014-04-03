@@ -1,8 +1,8 @@
-\name{lik_grad_single_network_formation}
-\alias{lik_grad_single_network_formation}
-\title{lik_grad_single_network_formation}
+\name{lik_grad_single_SNF}
+\alias{lik_grad_single_SNF}
+\title{lik_grad_single_SNF}
 \usage{
-lik_grad_single_network_formation(y, x1, x2, delta, y_not)
+lik_grad_single_SNF(y, x1, x2, delta, y_not)
 }
 \arguments{
   \item{y}{indicator of whether i and j is connected}
@@ -19,7 +19,7 @@ lik_grad_single_network_formation(y, x1, x2, delta, y_not)
 value of gradient of log likelihood
 }
 \description{
-Description lik_grad_single_network_formation
+Description lik_grad_single_SNF
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}
