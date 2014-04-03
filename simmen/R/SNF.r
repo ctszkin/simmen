@@ -1021,18 +1021,18 @@ computeNetworkSummary=function(seq_m, D){
 
 
 #' Description Strategy Network Formation
-#' @name SNF
-#' @aliases SNF
+#' @name SNF.dynamic.mcmc
+#' @aliases SNF.dynamic.mcmc
 #' @title Strategy Network Formation
 #' @param m m
 #' @param data data
 #' @param last_estimation last_estimation
 #' @param update_tau update_tau
 #' @param tau tau 
-#' @return SNF object
+#' @return SNF.dynamic.mcmc object
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-SNF = function(m, data, last_estimation, update_tau=TRUE,tau=0.005){
+SNF.dynamic.mcmc = function(m, data, last_estimation, update_tau=TRUE,tau=0.005){
 
   G = length(data)
   number_of_network = length(data[[1]]$D_list)
@@ -1247,23 +1247,23 @@ SNF = function(m, data, last_estimation, update_tau=TRUE,tau=0.005){
 
   out = list(delta_matrix=delta_matrix, delta=delta, seq_m=seq_m, ystar1=ystar1,ystar2=ystar2, tau=tau, update_rate=update_rate, Sigma=Sigma,Sigma_matrix=Sigma_matrix)
 
-  class(out) = "SNF"
+  class(out) = "SNF.dynamic.mcmc"
   out
 }
 
 #' Description Get a matrix of parameter 
-#' @name getParameterMatrix.SNF
-#' @aliases getParameterMatrix.SNF
-#' @title getParameterMatrix.SNF
-#' @param x SNF object
+#' @name getParameterMatrix.SNF.dynamic.mcmc
+#' @aliases getParameterMatrix.SNF.dynamic.mcmc
+#' @title getParameterMatrix.SNF.dynamic.mcmc
+#' @param x SNF.dynamic.mcmc object
 #' @param tail iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
 #'' @param ... not used
 #' @return A matrix
-#' @method getParameterMatrix SNF
-#' @S3method getParameterMatrix SNF
+#' @method getParameterMatrix SNF.dynamic.mcmc
+#' @S3method getParameterMatrix SNF.dynamic.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-getParameterMatrix.SNF = function(x, tail, ...){
+getParameterMatrix.SNF.dynamic.mcmc = function(x, tail, ...){
   if (is.list(x$delta_matrix)){
     out = do.call(cbind, x$delta_matrix)
     out = cbind(out, x$Sigma_matrix )
@@ -1276,20 +1276,20 @@ getParameterMatrix.SNF = function(x, tail, ...){
   out
 }
 
-#' Description merge.SNF
-#' @name merge.SNF
-#' @aliases merge.SNF
-#' @title merge.SNF
+#' Description merge.SNF.dynamic.mcmc
+#' @name merge.SNF.dynamic.mcmc
+#' @aliases merge.SNF.dynamic.mcmc
+#' @title merge.SNF.dynamic.mcmc
 #' @param x First object to merge with
 #' @param y Second object to merge with 
 #' @param ... not used
-#' @return A new SNF object
-#' @method merge SNF
-#' @S3method merge SNF
+#' @return A new SNF.dynamic.mcmc object
+#' @method merge SNF.dynamic.mcmc
+#' @S3method merge SNF.dynamic.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 
-merge.SNF = function(x,y,...){
+merge.SNF.dynamic.mcmc = function(x,y,...){
   out = y 
 
   for (i in 1:length(y$delta_matrix)){
@@ -1302,18 +1302,18 @@ merge.SNF = function(x,y,...){
 }
 
 #' Description Create a summary table
-#' @name summary.SNF
-#' @aliases summary.SNF
-#' @title summary.SNF
-#' @param object SNF object
+#' @name summary.SNF.dynamic.mcmc
+#' @aliases summary.SNF.dynamic.mcmc
+#' @title summary.SNF.dynamic.mcmc
+#' @param object SNF.dynamic.mcmc object
 #' @param ... tail:  iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
 #' @return A summary table
-#' @method summary SNF
-#' @S3method summary SNF
+#' @method summary SNF.dynamic.mcmc
+#' @S3method summary SNF.dynamic.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 
-summary.SNF = function(object,...){
+summary.SNF.dynamic.mcmc = function(object,...){
   computeSummaryTable(object,...)
 }
 

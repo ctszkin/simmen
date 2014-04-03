@@ -1,7 +1,7 @@
-#' Description loglikelihood_network_formation
-#' @name loglikelihood_network_formation
-#' @aliases loglikelihood_network_formation
-#' @title loglikelihood_network_formation
+#' Description loglikelihood_SNF
+#' @name loglikelihood_SNF
+#' @aliases loglikelihood_SNF
+#' @title loglikelihood_SNF
 #' @param y indicator of whether i and j is connected
 #' @param x1 variables of i 
 #' @param x2 variables of j
@@ -10,7 +10,7 @@
 #' @return value of log likelihood
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-loglikelihood_network_formation = function(y, x1, x2, delta, y_not){
+loglikelihood_SNF = function(y, x1, x2, delta, y_not){
   if (missing(y_not))
     y_not = !y
   p = pnorm(x1 %*% delta) * pnorm(x2 %*% delta)
@@ -22,10 +22,10 @@ loglikelihood_network_formation = function(y, x1, x2, delta, y_not){
   return(out)
 }
 
-#' Description lik_grad_single_network_formation
-#' @name lik_grad_single_network_formation
-#' @aliases lik_grad_single_network_formation
-#' @title lik_grad_single_network_formation
+#' Description lik_grad_single_SNF
+#' @name lik_grad_single_SNF
+#' @aliases lik_grad_single_SNF
+#' @title lik_grad_single_SNF
 #' @param y indicator of whether i and j is connected
 #' @param x1 variables of i 
 #' @param x2 variables of j
@@ -34,7 +34,7 @@ loglikelihood_network_formation = function(y, x1, x2, delta, y_not){
 #' @return value of gradient of log likelihood
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-lik_grad_single_network_formation = function(y, x1, x2, delta, y_not){
+lik_grad_single_SNF = function(y, x1, x2, delta, y_not){
   R1 = x1 %*% delta
   R2 = x2 %*% delta
 
@@ -87,34 +87,38 @@ drawYstar = function(y, ystar_other, mean, y_not=!y, sd=1){
   ystar_new
 }
 
-#' Description network_formation
-#' @name network_formation
-#' @aliases network_formation
-#' @title network_formation
+
+
+
+#' Description Strategy Network Formation
+#' @name SNF
+#' @aliases SNF
+#' @title SNF
 #' @param data data
-#' @param method Estimation method, either "maxLik" or "mcmc". Default is "maxLik"
-#' @param ... others argument. See \link{network_formation.mcmc}
-#' @return network_formation object
+#' @param method Estimation method, either "static.maxLik","static.mcmc","dynamic.mcmc". Default is "static.maxLik"
+#' @param ... others argument. See \link{SNF.static.maxLik}, \link{SNF.static.mcmc}, \link{SNF.dynamic.mcmc}
+#' @return SNF object
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-network_formation = function(data , method=c("maxLik","mcmc"), ...){
+SNF = function(data , method=c("static.maxLik","static.mcmc","dynamic.mcmc"), ...){
   method = match.arg(method)
   switch(method,
-    maxLik = network_formation.maxLik(data,...),
-    mcmc = network_formation.mcmc(data,...) 
+    static.maxLik = SNF.static.maxLik(data,...),
+    static.mcmc = SNF.static.mcmc(data,...),
+    dynamic.mcmc = SNF.dynamic.mcmc(data,...),
   )
 }
 
-#' Description network_formation.maxLik
-#' @name network_formation.maxLik
-#' @aliases network_formation.maxLik
-#' @title network_formation.maxLik
+#' Description SNF.static.maxLik
+#' @name SNF.static.maxLik
+#' @aliases SNF.static.maxLik
+#' @title SNF.static.maxLik
 #' @param data data
 #' @param ... not used
-#' @return network_formation object
+#' @return SNF.static.maxLik object
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-network_formation.maxLik = function(data,...){
+SNF.static.maxLik = function(data,...){
   tic()
 
   self_data_matrix = do.call(rbind, lapply(data , function(z) z$self_data_matrix))
@@ -133,7 +137,7 @@ network_formation.maxLik = function(data,...){
     yy_not = !yy
     start = glm(yy~self_data_matrix-1, family=binomial(link="probit"))$coef
 
-    out[[i]] = maxLik(function(z, ...) loglikelihood_network_formation(delta=z, ...) , start=start ,  x1=self_data_matrix, x2=friends_data_matrix, y=yy, y_not=yy_not , grad= lik_grad_single_network_formation, method="BFGS")
+    out[[i]] = maxLik(function(z, ...) loglikelihood_SNF(delta=z, ...) , start=start ,  x1=self_data_matrix, x2=friends_data_matrix, y=yy, y_not=yy_not , grad= lik_grad_single_SNF, method="BFGS")
 
       summary_table[[i]] = generateSignificance(summary(out[[i]])$estimate[,1:2])
       rownames(summary_table[[i]]) = network_name[i] %+% "_" %+%colnames(self_data_matrix)
@@ -142,24 +146,23 @@ network_formation.maxLik = function(data,...){
   summary_table = do.call(rbind,summary_table)
   toc()
   out2 = list(out=out, summary_table=summary_table)
-  class(out2) = "network_formation.maxLik"
+  class(out2) = "SNF.static.maxLik"
   out2
 }
 
 
 
-#' Description network_formation.mcmc
-#' @name network_formation.mcmc
-#' @aliases network_formation.mcmc
-#' @title network_formation.mcmc
+#' Description SNF.static.mcmc
+#' @name SNF.static.mcmc
+#' @aliases SNF.static.mcmc
+#' @title SNF.static.mcmc
 #' @param data data
 #' @param m number of iteration
 #' @param last_estimation previous estimation object 
 #' @param ... not used
-#' @return network_formation object
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-network_formation.mcmc = function(data, m=1000, last_estimation,...){
+SNF.static.mcmc = function(data, m=1000, last_estimation,...){
 
   self_data_matrix = do.call(rbind, lapply(data , function(z) z$self_data_matrix))
   friends_data_matrix = do.call(rbind, lapply(data , function(z) z$friends_data_matrix))
@@ -168,9 +171,6 @@ network_formation.mcmc = function(data, m=1000, last_estimation,...){
   y_not = !y
   number_of_network = ncol(y)
 
-  # if (number_of_network==1){
-  #   return( single_network_formation_mcmc(data,m,last_estimation) )
-  # }
 
   name = colnames(self_data_matrix)
   k =  ncol(self_data_matrix)
@@ -282,19 +282,19 @@ network_formation.mcmc = function(data, m=1000, last_estimation,...){
   out
 }
 
-#' Description merge.network_formation.mcmc
-#' @name merge.network_formation.mcmc
-#' @aliases merge.network_formation.mcmc
-#' @title merge.network_formation.mcmc
+#' Description merge.SNF.static.mcmc
+#' @name merge.SNF.static.mcmc
+#' @aliases merge.SNF.static.mcmc
+#' @title merge.SNF.static.mcmc
 #' @param x First object to merge with
 #' @param y Second object to merge with 
 #' @param ... not used
-#' @return A new network_formation.mcmc object
-#' @method merge network_formation.mcmc
-#' @S3method merge network_formation.mcmc
+#' @return A new SNF.static.mcmc object
+#' @method merge SNF.static.mcmc
+#' @S3method merge SNF.static.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-merge.network_formation.mcmc = function(x,y,...){
+merge.SNF.static.mcmc = function(x,y,...){
   out = y
   if (is.list(x$delta_matrix)){
     for (i in 1:length(x$delta_matrix)){
@@ -308,18 +308,18 @@ merge.network_formation.mcmc = function(x,y,...){
 }
 
 #' Description Get a matrix of parameter 
-#' @name getParameterMatrix.network_formation.mcmc
-#' @aliases getParameterMatrix.network_formation.mcmc
-#' @title getParameterMatrix.network_formation.mcmc
-#' @param x network_formation
+#' @name getParameterMatrix.SNF.static.mcmc
+#' @aliases getParameterMatrix.SNF.static.mcmc
+#' @title getParameterMatrix.SNF.static.mcmc
+#' @param x SNF.static.mcmc
 #' @param tail iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
 #'' @param ... not used
 #' @return A matrix
-#' @method getParameterMatrix network_formation.mcmc
-#' @S3method getParameterMatrix network_formation.mcmc
+#' @method getParameterMatrix SNF.static.mcmc
+#' @S3method getParameterMatrix SNF.static.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-getParameterMatrix.network_formation.mcmc = function(x, tail, ...){
+getParameterMatrix.SNF.static.mcmc = function(x, tail, ...){
   if (is.list(x$delta_matrix)){
     out = do.call(cbind, x$delta_matrix)
     out = cbind(out, x$Sigma_matrix )
@@ -334,32 +334,32 @@ getParameterMatrix.network_formation.mcmc = function(x, tail, ...){
 
 
 #' Description Create a summary table
-#' @name summary.network_formation.mcmc
-#' @aliases summary.network_formation.mcmc
-#' @title summary.network_formation.mcmc
-#' @param object network_formation object
+#' @name summary.SNF.static.mcmc
+#' @aliases summary.SNF.static.mcmc
+#' @title summary.SNF.static.mcmc
+#' @param object SNF.static.mcmc object
 #' @param ... tail:  iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
 #' @return A summary table
-#' @method summary network_formation.mcmc
-#' @S3method summary network_formation.mcmc
+#' @method summary SNF.static.mcmc
+#' @S3method summary SNF.static.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-summary.network_formation.mcmc = function(object,...){
+summary.SNF.static.mcmc = function(object,...){
   computeSummaryTable(object,...)
 }
 
 #' Description Create a summary table
-#' @name summary.network_formation.maxLik
-#' @aliases summary.network_formation.maxLik
-#' @title summary.network_formation.maxLik
-#' @param object network_formation object
+#' @name summary.SNF.static.maxLik
+#' @aliases summary.SNF.static.maxLik
+#' @title summary.SNF.static.maxLik
+#' @param object SNF.static.maxLik object
 #' @param ... not used
 #' @return A summary table
-#' @method summary network_formation.maxLik
-#' @S3method summary network_formation.maxLik
+#' @method summary SNF.static.maxLik
+#' @S3method summary SNF.static.maxLik
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-summary.network_formation.maxLik = function(object,...){
+summary.SNF.static.maxLik = function(object,...){
   object$summary_table
 }
 
@@ -965,9 +965,6 @@ summary.network_formation.maxLik = function(object,...){
 #   out$sigma2e2_matrix = rbind(x$sigma2e2_matrix , y$sigma2e2_matrix) 
 #   out
 # })
-
-
-
 
 
 
