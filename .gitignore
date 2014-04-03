@@ -4,3 +4,5 @@ SESHK2011 - network - 0.8.0/
 *.7z
 *.tar.gz
 *.zip
+simmen/src-i386/
+simmen/src-x64/
