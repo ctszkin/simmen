@@ -698,8 +698,8 @@ single_endogenous_mcmc = function(m, data, last_out){
     xb1 = x1  %*% delta_matrix[i, ]
     xb2 = x2  %*% delta_matrix[i, ]
 
-    ystar1 = drawYstar_single(y=y , ystar_other=ystar2, mean=xb1, y_not= y_not)
-    ystar2 = drawYstar_single(y=y, ystar_other=ystar1, mean=xb2, y_not= y_not)
+    ystar1 = drawYstar(y=y , ystar_other=ystar2, mean=xb1, y_not= y_not)
+    ystar2 = drawYstar(y=y, ystar_other=ystar1, mean=xb2, y_not= y_not)
 
     # update delta
     lm_fit = myFastLm(rbind(x1,x2),c(ystar1, ystar2))

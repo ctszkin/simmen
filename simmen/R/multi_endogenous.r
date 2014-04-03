@@ -525,11 +525,11 @@ multi_endogenous_mcmc = function(m, data, last_out, allow_correlation=TRUE, upda
     for (j in 1:number_of_network){
       temp = find_normal_conditional_dist(a= ystar1_demean, i=j, j=-j, Sigma=Sigma)
 
-      ystar1[,j] = drawYstar_single(y=y[,j] , ystar_other=ystar2[,j], mean=xb1[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
+      ystar1[,j] = drawYstar(y=y[,j] , ystar_other=ystar2[,j], mean=xb1[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
 
       temp = find_normal_conditional_dist(a= ystar2_demean, i=j, j=-j, Sigma=Sigma)
 
-      ystar2[,j] = drawYstar_single(y=y[,j] , ystar_other=ystar1[,j], mean=xb2[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
+      ystar2[,j] = drawYstar(y=y[,j] , ystar_other=ystar1[,j], mean=xb2[,j] + temp$mean, y_not= y_not[,j], sd= sqrt(temp$var) )
 
       ystar1_demean = ystar1 - xb1
       ystar2_demean = ystar2 - xb2
