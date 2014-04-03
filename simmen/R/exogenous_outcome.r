@@ -151,6 +151,34 @@
 #   out
 # })
 
+
+#' Description peer_effect
+#' @name peer_effect
+#' @aliases peer_effect
+#' @title peer_effect
+#' @param data data
+#' @param method "maxLik" or "ols"
+#' @param type valid if method=="ols". "spillover": including X, WX and WY; "contexual": including X and WX; "ols": only include X
+#' @return Summary table
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+peer_effect = function(data, method = c("maxLik","ols"),type=c("spillover","contextual","ols") ){
+  method = match.arg(method)
+  type = match.arg(type)
+
+  if (method == "maxLik"){
+    return(peer_effect_exogenous(data))
+  } else if (method=="ols"){
+    retrun(
+      switch(type,
+        spillover = peer_effect_ols(data),
+        contextual = peer_effect_ols_contextual_only(data),
+        ols = ols(data)
+      )
+    )
+  }
+}
+
 peer_effect_ols = function(data){
   data_matrix = genDataMatrix(data)
   lm_fit = myFastLm(cbind(data_matrix$X,data_matrix$WY), data_matrix$Y)
@@ -167,7 +195,7 @@ ols = function(data){
   out
 }
 
-peer_effect_ols_exogenous = function(data){
+peer_effect_ols_contextual_only= function(data){
   data_matrix = genDataMatrix(data)
   lm_fit = myFastLm(cbind(data_matrix$X), data_matrix$Y)
   out = generateSignificance(cbind(lm_fit$coefficients, sqrt(diag(lm_fit$cov)) ) )
@@ -271,6 +299,7 @@ peer_effect_exogenous =function(data){
 
   summary_table = generateSignificance(summary(out)$estimate[,1:2], row_names=row_names)
 
-  c(list(out),list(summary_table))
+  # c(list(out),list(summary_table))
+  summary_table
 }
 
