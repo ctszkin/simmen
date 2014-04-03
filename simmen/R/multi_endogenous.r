@@ -370,7 +370,7 @@ update_sign_e_multi = function(lambda,phi,rho, data_matrix, e_list, network_id){
 #############################################################################################################################
 #############################################################################################################################
 
-multi_endogenous_mcmc = function(m, data, last_out, allow_correlation=TRUE, update_sign=TRUE, initial_seed = 100, seed_for_chain = round(runif(1)*10000),   start_value_delta_diff_e  = 0 , tau_e=1){
+simmen = function(m, data, last_out, allow_correlation=TRUE, update_sign=TRUE, initial_seed = 100, seed_for_chain = round(runif(1)*10000),   start_value_delta_diff_e  = 0 , tau_e=1){
   # e_dist = match.arg(e_dist)
 
   number_of_network = length(data[[1]]$D_list)
@@ -745,7 +745,7 @@ multi_endogenous_mcmc = function(m, data, last_out, allow_correlation=TRUE, upda
   cat("Summary of flip sign:")
   print(out$flip_sign_rate)
   cat("\n\n")
-  class(out) = "multi_endogenous"
+  class(out) = "simmen"
   out
 
 }
@@ -759,7 +759,7 @@ multi_endogenous_mcmc = function(m, data, last_out, allow_correlation=TRUE, upda
 
 
 
-merge.multi_endogenous = function(x,y,...){
+merge.simmen = function(x,y,...){
   if (length(list(...))>0){
     list_args = list(...)
     out = list_args[[1]]
@@ -796,12 +796,12 @@ peer_effect_endogenous = function(...){
 
 
 
-plotmcmc2.multi_endogenous = function(x, name, file="mcmc_plot.pdf", tail=10000){
+plotmcmc2.simmen = function(x, name, file="mcmc_plot.pdf", tail=10000){
   xx = lapply(x, getParameterMatrix.single_endogenous)
   plotmcmc2.default(xx, name=name, tail=tail )
 }
 
-getParameterMatrix.multi_endogenous = function(x,tail){
+getParameterMatrix.simmen = function(x,tail){
   delta_matrix = do.call(cbind, x$delta)
 
   out = cbind(x$phi,x$rho,x$lambda,delta_matrix,x$Sigma_matrix)
@@ -815,7 +815,7 @@ getParameterMatrix.multi_endogenous = function(x,tail){
 
 
 
-plotmcmc.multi_endogenous = function(x, tail=-0.2){
+plotmcmc.simmen = function(x, tail=-0.2){
   x11(20,20)
   plotmcmc(cbind(x$phi,x$rho,x$lambda), tail=tail)
   x11(20,20)
