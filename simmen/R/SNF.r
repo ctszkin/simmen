@@ -1,4 +1,4 @@
-#' Description loglikelihood_SNF
+#' loglikelihood_SNF
 #' @name loglikelihood_SNF
 #' @aliases loglikelihood_SNF
 #' @title loglikelihood_SNF
@@ -22,7 +22,7 @@ loglikelihood_SNF = function(y, x1, x2, delta, y_not){
   return(out)
 }
 
-#' Description lik_grad_single_SNF
+#' lik_grad_single_SNF
 #' @name lik_grad_single_SNF
 #' @aliases lik_grad_single_SNF
 #' @title lik_grad_single_SNF
@@ -51,7 +51,7 @@ lik_grad_single_SNF = function(y, x1, x2, delta, y_not){
   as.vector(colSums(out))
 }
 
-#' Description drawYstar
+#' drawYstar
 #' @name drawYstar
 #' @aliases drawYstar
 #' @title drawYstar
@@ -90,13 +90,21 @@ drawYstar = function(y, ystar_other, mean, y_not=!y, sd=1){
 
 
 
-#' Description Strategy Network Formation
+#' Strategy Network Formation
 #' @name SNF
+#' @rdname SNF
 #' @aliases SNF
+#' @aliases SNF.static.maxLik
+#' @aliases SNF.static.mcmc
+#' @aliases SNF.dynamic.mcmc
 #' @title SNF
 #' @param data data
 #' @param method Estimation method, either "static.maxLik","static.mcmc","dynamic.mcmc". Default is "static.maxLik"
-#' @param ... others argument. See \link{SNF.static.maxLik}, \link{SNF.static.mcmc}, \link{SNF.dynamic.mcmc}
+#' @param m m
+#' @param last_estimation last_estimation
+#' @param update_tau update_tau
+#' @param tau tau 
+#' @param ... others argument.
 #' @return SNF object
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
@@ -109,14 +117,7 @@ SNF = function(data , method=c("static.maxLik","static.mcmc","dynamic.mcmc"), ..
   )
 }
 
-#' Description SNF.static.maxLik
-#' @name SNF.static.maxLik
-#' @aliases SNF.static.maxLik
-#' @title SNF.static.maxLik
-#' @param data data
-#' @param ... not used
-#' @return SNF.static.maxLik object
-#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @rdname SNF
 #' @export
 SNF.static.maxLik = function(data,...){
   tic()
@@ -152,15 +153,7 @@ SNF.static.maxLik = function(data,...){
 
 
 
-#' Description SNF.static.mcmc
-#' @name SNF.static.mcmc
-#' @aliases SNF.static.mcmc
-#' @title SNF.static.mcmc
-#' @param data data
-#' @param m number of iteration
-#' @param last_estimation previous estimation object 
-#' @param ... not used
-#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @rdname SNF
 #' @export
 SNF.static.mcmc = function(data, m=1000, last_estimation,...){
 
@@ -282,7 +275,7 @@ SNF.static.mcmc = function(data, m=1000, last_estimation,...){
   out
 }
 
-#' Description merge.SNF.static.mcmc
+#' merge.SNF.static.mcmc
 #' @name merge.SNF.static.mcmc
 #' @aliases merge.SNF.static.mcmc
 #' @title merge.SNF.static.mcmc
@@ -307,7 +300,7 @@ merge.SNF.static.mcmc = function(x,y,...){
   out
 }
 
-#' Description Get a matrix of parameter 
+#' Get a matrix of parameter 
 #' @name getParameterMatrix.SNF.static.mcmc
 #' @aliases getParameterMatrix.SNF.static.mcmc
 #' @title getParameterMatrix.SNF.static.mcmc
@@ -333,7 +326,7 @@ getParameterMatrix.SNF.static.mcmc = function(x, tail, ...){
 }
 
 
-#' Description Create a summary table
+#' Create a summary table
 #' @name summary.SNF.static.mcmc
 #' @aliases summary.SNF.static.mcmc
 #' @title summary.SNF.static.mcmc
@@ -348,7 +341,7 @@ summary.SNF.static.mcmc = function(object,...){
   computeSummaryTable(object,...)
 }
 
-#' Description Create a summary table
+#' Create a summary table
 #' @name summary.SNF.static.maxLik
 #' @aliases summary.SNF.static.maxLik
 #' @title summary.SNF.static.maxLik
@@ -982,7 +975,7 @@ summary.SNF.static.maxLik = function(object,...){
 ## U_xb : an n by n utility matrix, i,j element is the utility of i to make friends with j. (Xbeta)
 ## delta1 delta2 
 
-#' Description Draw random sample of meeting sequence
+#' Draw random sample of meeting sequence
 #' @name DrawSeqSample
 #' @aliases DrawSeqSample
 #' @title DrawSeqSample
@@ -1171,7 +1164,7 @@ DrawSeqSample = function(x , p =0.01){
 # all(q1[[2]]==q2[[2]])
 
 
-#' Description computeNetworkSummary
+#' computeNetworkSummary
 #' @name computeNetworkSummary
 #' @aliases computeNetworkSummary
 #' @title computeNetworkSummary
@@ -1998,17 +1991,7 @@ computeNetworkSummary=function(seq_m, D){
 
 
 
-#' Description Strategy Network Formation
-#' @name SNF.dynamic.mcmc
-#' @aliases SNF.dynamic.mcmc
-#' @title Strategy Network Formation
-#' @param m m
-#' @param data data
-#' @param last_estimation last_estimation
-#' @param update_tau update_tau
-#' @param tau tau 
-#' @return SNF.dynamic.mcmc object
-#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @rdname SNF
 #' @export
 SNF.dynamic.mcmc = function(m, data, last_estimation, update_tau=TRUE,tau=0.005){
 
@@ -2229,7 +2212,7 @@ SNF.dynamic.mcmc = function(m, data, last_estimation, update_tau=TRUE,tau=0.005)
   out
 }
 
-#' Description Get a matrix of parameter 
+#' Get a matrix of parameter 
 #' @name getParameterMatrix.SNF.dynamic.mcmc
 #' @aliases getParameterMatrix.SNF.dynamic.mcmc
 #' @title getParameterMatrix.SNF.dynamic.mcmc
@@ -2254,7 +2237,7 @@ getParameterMatrix.SNF.dynamic.mcmc = function(x, tail, ...){
   out
 }
 
-#' Description merge.SNF.dynamic.mcmc
+#' merge.SNF.dynamic.mcmc
 #' @name merge.SNF.dynamic.mcmc
 #' @aliases merge.SNF.dynamic.mcmc
 #' @title merge.SNF.dynamic.mcmc
@@ -2279,7 +2262,7 @@ merge.SNF.dynamic.mcmc = function(x,y,...){
   out
 }
 
-#' Description Create a summary table
+#' Create a summary table
 #' @name summary.SNF.dynamic.mcmc
 #' @aliases summary.SNF.dynamic.mcmc
 #' @title summary.SNF.dynamic.mcmc
