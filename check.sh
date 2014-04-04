@@ -1,3 +1,5 @@
+rm -r simmen/man/*
+sleep 1
 Rscript roxygen.r
 sleep 1
 R CMD check simmen --as-cran
