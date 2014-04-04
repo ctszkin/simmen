@@ -19,7 +19,7 @@ lik_grad_single_SNF(y, x1, x2, delta, y_not)
 value of gradient of log likelihood
 }
 \description{
-Description lik_grad_single_SNF
+lik_grad_single_SNF
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

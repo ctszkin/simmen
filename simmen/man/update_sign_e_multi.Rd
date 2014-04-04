@@ -1,0 +1,29 @@
+\name{update_sign_e_multi}
+\alias{update_sign_e_multi}
+\title{update_sign_e_multi}
+\usage{
+update_sign_e_multi(lambda, phi, rho, data_matrix, e_list, network_id)
+}
+\arguments{
+  \item{lambda}{lambda}
+
+  \item{phi}{phi}
+
+  \item{rho}{rho}
+
+  \item{data_matrix}{data_matrix}
+
+  \item{e_list}{e_list}
+
+  \item{network_id}{network_id}
+}
+\value{
+value
+}
+\description{
+Update the sign of e
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+

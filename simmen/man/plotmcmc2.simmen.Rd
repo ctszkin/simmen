@@ -1,0 +1,31 @@
+\name{plotmcmc2.simmen}
+\alias{plotmcmc2.simmen}
+\title{plotmcmc2.simmen}
+\usage{
+\method{plotmcmc2}{simmen}(x, name, file = "mcmc_plot.pdf", tail = 10000,
+  ...)
+}
+\arguments{
+  \item{x}{x}
+
+  \item{name}{name}
+
+  \item{file}{filename of the plot, Default is
+  "mcmc_plot.pdf"}
+
+  \item{tail}{How many observation of tail to use. tail<0
+  means remove first -tail iteration. -1<tail<1 means
+  percentage}
+
+  \item{...}{...}
+}
+\value{
+value
+}
+\description{
+plotmcmc2.simmen
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+

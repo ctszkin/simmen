@@ -13,7 +13,7 @@ DrawSeqSample(x, p = 0.01)
 value
 }
 \description{
-Description Draw random sample of meeting sequence
+Draw random sample of meeting sequence
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

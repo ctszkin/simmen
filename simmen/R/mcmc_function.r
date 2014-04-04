@@ -1,4 +1,15 @@
-priorFunction = function(x, type="normal") { 
+#' priorFunction
+#' @name priorFunction
+#' @aliases priorFunction
+#' @title priorFunction
+#' @detail priorFunction
+#' @param x x
+#' @param type "normal","invgamma","uniform","trunc_normal"
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+priorFunction = function(x, type=c("normal","invgamma","uniform","trunc_normal")) { 
+  type = match.arg(type)
   if (type=="normal")
     return(sum(dnorm(x,sd=2,log=TRUE)))
   if (type=="invgamma")
@@ -9,7 +20,19 @@ priorFunction = function(x, type="normal") {
     return(sum(log(dtruncnorm(x,sd=2, a=0))))
 }
 
-samplingFunction = function(beta, tau, type="normal") {
+#' samplingFunction
+#' @name samplingFunction
+#' @aliases samplingFunction
+#' @title samplingFunction
+#' @detail samplingFunction
+#' @param beta beta
+#' @param tau tau 
+#' @param type "normal","invgamma","uniform","trunc_normal"
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+samplingFunction = function(beta, tau, type=c("normal","invgamma","uniform","trunc_normal")) {
+  type = match.arg(type)
   if (type=="normal")
     return(rnorm(length(beta))*tau + beta)
   if (type=="absnormal")
@@ -21,6 +44,20 @@ samplingFunction = function(beta, tau, type="normal") {
   }
 }
 
+#' metropolis
+#' @name metropolis
+#' @aliases metropolis
+#' @title metropolis
+#' @detail metropolis
+#' @param beta_previous beta_previous
+#' @param tau scale of sampling distribution
+#' @param likelihoodFunction likelihoodFunction
+#' @param prior_type Default is "normal" , see \link{priorFunction}
+#' @param sampling_type Default is "normal", see \link{samplingFunction}
+#' @param ... ...
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 metropolis = function(beta_previous, tau, likelihoodFunction, prior_type="normal", sampling_type="normal", ...){
 
   beta_new = samplingFunction(beta_previous, tau, sampling_type)
@@ -47,6 +84,20 @@ metropolis = function(beta_previous, tau, likelihoodFunction, prior_type="normal
   }
 }
 
+#' metropolis2
+#' @name metropolis2
+#' @aliases metropolis2
+#' @title metropolis2
+#' @detail metropolis2
+#' @param beta_previous beta_previous
+#' @param tau scale of sampling distribution
+#' @param likelihoodFunction likelihoodFunction
+#' @param prior_type Default is "normal" , see \link{priorFunction}
+#' @param sampling_type Default is "normal", see \link{samplingFunction}
+#' @param ... ... 
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 metropolis2 = function(beta_previous, tau, likelihoodFunction, prior_type="normal", sampling_type="normal", ...){
 
   k = length(beta_previous)
@@ -76,7 +127,15 @@ metropolis2 = function(beta_previous, tau, likelihoodFunction, prior_type="norma
 }
 
 
-
+#' findplotIndex
+#' @name findplotIndex
+#' @aliases findplotIndex
+#' @title findplotIndex
+#' @detail findplotIndex
+#' @param x x
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 findplotIndex = function(x){
   n=x/2
   index = 1:n* 2:(n+1) < x
@@ -87,24 +146,36 @@ findplotIndex = function(x){
 }
 
 
-transform.mcmc = function(x, remove=0){
-  i=j=NULL
-  all_name = 
-    foreach(i = x, j = names(x),.combine=c ) %do% {
-      if (is.matrix(i))
-        paste0(j,seq(ncol(i)))
-      else
-        j
-    }
-  x_matrix = do.call(cbind, x)
-  colnames(x_matrix) = all_name
-  if (remove>0)
-    return(tail(x_matrix,-remove))
-  else
-    return(x_matrix)  
-}
+# transform.mcmc = function(x, remove=0){
+#   i=j=NULL
+#   all_name = 
+#     foreach(i = x, j = names(x),.combine=c ) %do% {
+#       if (is.matrix(i))
+#         paste0(j,seq(ncol(i)))
+#       else
+#         j
+#     }
+#   x_matrix = do.call(cbind, x)
+#   colnames(x_matrix) = all_name
+#   if (remove>0)
+#     return(tail(x_matrix,-remove))
+#   else
+#     return(x_matrix)  
+# }
 
-
+#' Inverse gamma Distribution
+#' @name dinvgamma
+#' @rdname invgamma
+#' @aliases dinvgamma rinvgamma
+#' @title invgamma
+#' @detail Inverse gamma Distribution
+#' @param x x
+#' @param n n
+#' @param shape shape
+#' @param scale scale
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 dinvgamma = function (x, shape, scale = 1) {
   if (shape <= 0 | scale <= 0) {
       stop("Shape or scale parameter negative in dinvgamma().\n")
@@ -116,22 +187,35 @@ dinvgamma = function (x, shape, scale = 1) {
   return(exp(log.density))
 }
 
+#' @rdname invgamma
+#' @export
 rinvgamma = function (n, shape, scale = 1) 
 {
   if (scale==0 ) return(1)
   return(1/rgamma(n = n, shape = shape, rate = scale))
 }
 
-dim2 = function(x, type=c("row","col")){
-  type = match.arg(type)
-  if (is.vector(x))
-    return(length(x))
-  else if (type=="row")
-    return(nrow(x))
-  else if (type=="col")
-    return(ncol(x))
-}
+# dim2 = function(x, type=c("row","col")){
+#   type = match.arg(type)
+#   if (is.vector(x))
+#     return(length(x))
+#   else if (type=="row")
+#     return(nrow(x))
+#   else if (type=="col")
+#     return(ncol(x))
+# }
 
+#' uniqueRow
+#' @name uniqueRow
+#' @aliases uniqueRow
+#' @title uniqueRow
+#' @detail uniqueRow
+#' @param x x
+#' @param number_of_col number_of_col
+#' @param percentage percentage
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 uniqueRow = function(x, number_of_col = "all", percentage=TRUE){
   if (is.numeric(number_of_col)){
     out = NROW(unique(x[,1:number_of_col]))
@@ -145,19 +229,32 @@ uniqueRow = function(x, number_of_col = "all", percentage=TRUE){
   }
 }
 
+#' load first/last object
+#' @name loadLastObject
+#' @rdaname loadLastObject
+#' @aliases loadLastObject loadFirstObject readAllLastObject
+#' @title loadLastObject
+#' @detail load first/last/all last object. \code{readAllLastObject} will read all last object from every folder (with name from 1 to 20)
+#' @param foldername foldername
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 loadLastObject = function(foldername){
   file_name = sort( setdiff(dir(foldername), "last.rData") , decreasing=TRUE)[1]
   obj_name = load(foldername %+% file_name)
   get(obj_name)
 }
 
+#' @rdaname loadLastObject
+#' @export
 loadFirstObject = function(foldername){
   file_name = sort( setdiff(dir(foldername), "last.rData") , decreasing=FALSE)[1]
   obj_name = load(foldername %+% file_name)
   get(obj_name)
 }
 
-
+#' @rdaname loadLastObject
+#' @export
 readAllLastObject = function(){
   i=NULL
   foreach (i = checkFolder()) %do% {
@@ -165,7 +262,16 @@ readAllLastObject = function(){
   }
 }
 
-
+#' readAllObject
+#' @name readAllObject
+#' @aliases readAllObject
+#' @title readAllObject
+#' @detail readAllObject
+#' @param path path
+#' @param except vector of filenames for exclusion
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 readAllObject = function(path, except){
   env1 = new.env()
   file_name = dir(path)
@@ -230,47 +336,60 @@ readAllObject = function(path, except){
 #   return(out)
 # }
 
-var2 = function(x){
-  if (is.matrix(x))
-    return(apply(x,2,var2))
-  if (is.vector(x))
-    return(mean(x^2)-mean(x)^2 )
-}
-colVar=function(x){
-  var2(x)
-}
 
-computeMeanVAR = function(x){
-  name = colnames(x)
-  out = cbind(mean=apply(x,2,mean), var=apply(x,2, function(z) mean((z-mean(z))^2) ))
-  rownames(out) = name
-  out
-}
+# var2 = function(x){
+#   if (is.matrix(x))
+#     return(apply(x,2,var2))
+#   if (is.vector(x))
+#     return(mean(x^2)-mean(x)^2 )
+# }
 
+# colVar=function(x){
+#   var2(x)
+# }
 
-computeMeanSD = function(x){
-  name = colnames(x)
-  out = cbind(mean=apply(x,2,mean), sd=apply(x,2, sd ))
-  rownames(out) = name
-  out
-}
+# computeMeanVAR = function(x){
+#   name = colnames(x)
+#   out = cbind(mean=apply(x,2,mean), var=apply(x,2, function(z) mean((z-mean(z))^2) ))
+#   rownames(out) = name
+#   out
+# }
 
-
-
-summary.mcmc = function(x, name){
-  obj_name = c("phi_matrix","lambda_matrix","delta1_matrix","delta2_matrix")
-  out = 
-    do.call(rbind, 
-      lapply(obj_name, function(z) {
-        computeMeanVAR(x[[z]])  
-      })
-    )
-  rownames(out) = name
-  out
-}
+# computeMeanSD = function(x){
+#   name = colnames(x)
+#   out = cbind(mean=apply(x,2,mean), sd=apply(x,2, sd ))
+#   rownames(out) = name
+#   out
+# }
 
 
-plotmcmc.byid = function(x, id, mean,min,max){
+# summary.mcmc = function(x, name){
+#   obj_name = c("phi_matrix","lambda_matrix","delta1_matrix","delta2_matrix")
+#   out = 
+#     do.call(rbind, 
+#     do.call(rbind, 
+#       lapply(obj_name, function(z) {
+#         computeMeanVAR(x[[z]])  
+#       })
+#     )
+#   rownames(out) = name
+#   out
+# }
+
+#' plotmcmc_byid
+#' @name plotmcmc_byid
+#' @aliases plotmcmc_byid
+#' @title plotmcmc_byid
+#' @detail plotmcmc_byid
+#' @param x x
+#' @param id id
+#' @param mean mean
+#' @param min min
+#' @param max max
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+plotmcmc_byid = function(x, id, mean,min,max){
   m = length(x)
   name = colnames(x[[1]])[id]
   plot.new()
@@ -282,7 +401,20 @@ plotmcmc.byid = function(x, id, mean,min,max){
     abline(h=mean,lwd=2,col="blue"  )
   }
 }
-plotmcmc.ma = function(x, tail){
+
+#' plotmcmc_ma
+#' @name plotmcmc_ma
+#' @aliases plotmcmc_ma
+#' @title plotmcmc_ma
+#' @detail plotmcmc_ma
+#' @param x x
+#' @param tail tail
+#' @param ... ... 
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+
+plotmcmc_ma = function(x, tail,...){
   parameter_matrix_list = lapply(x, getParameterMatrix, tail=tail)
   j = 50
   par(mfrow=c(4,2))
@@ -311,6 +443,17 @@ plotmcmc.ma = function(x, tail){
 
 }
 
+#' compareMCMC
+#' @name compareMCMC
+#' @aliases compareMCMC
+#' @title compareMCMC
+#' @detail compareMCMC
+#' @param x x
+#' @param tail tail
+#' @param pdf Logical
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 compareMCMC = function(x, tail, pdf=FALSE){
   if (missing(tail)){
     tail = NA
@@ -378,7 +521,7 @@ compareMCMC = function(x, tail, pdf=FALSE){
     min = min(parameter_matrix_all[,j])
     max = max(parameter_matrix_all[,j])
     plot.new()
-    plotmcmc.byid(parameter_matrix_list,j,mean,min,max)
+    plotmcmc_byid(parameter_matrix_list,j,mean,min,max)
   }
   if (pdf){
     dev.off() 
@@ -389,17 +532,27 @@ compareMCMC = function(x, tail, pdf=FALSE){
 }
 
 
-
-plotmcmc.default = function(x,name,tail=0){
+#' plotmcmc.default
+#' @name plotmcmc.default
+#' @aliases plotmcmc.default
+#' @title plotmcmc.default
+#' @detail plotmcmc.default
+#' @param x x
+#' @param tail tail
+#' @param ... ...
+#' @method plotmcmc default
+#' @S3method plotmcmc default
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+plotmcmc.default = function(x,tail=0,...){
   if (!is.matrix(x)){
     x = getParameterMatrix(x)
   }
 
   x = extractTail(x, tail)
 
-  if (missing(name)){
-    name=colnames(x)
-  }
+  name=colnames(x)
   n = ncol(x)
   par(mfrow=findplotIndex(n))
   for (i in 1:ncol(x)){
@@ -417,30 +570,66 @@ plotmcmc.default = function(x,name,tail=0){
       title(name[i], sub=round(t,2))
   }
 }
+
+#' plotmcmc
+#' @name plotmcmc
+#' @rdaname plotmcmc 
+#' @aliases plotmcmc plotmcmc2
+#' @title plotmcmc
+#' @detail plotmcmc
+#' @param x x
+#' @param ... ... 
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 plotmcmc = function(x,...) UseMethod("plotmcmc", x)
 
 
-mergeParameter = function(x,name,colnames){
-  out = do.call(cbind,x[name])
-  if (!missing(colnames))
-    colnames(out) = colnames
-  out
-}
-merge.mcmc = function(x, obj_name){
-  obj_name = c("phi_matrix","lambda_matrix","delta1_matrix","delta2_matrix","sigma2e_matrix")
-  out = 
-    do.call(cbind, 
-      lapply(obj_name, function(z) {
-        x[[z]]
-      })
-    )
-  colnames(out)
-  out
-}
 
+
+# mergeParameter = function(x,name,colnames){
+#   out = do.call(cbind,x[name])
+#   if (!missing(colnames))
+#     colnames(out) = colnames
+#   out
+# }
+
+# merge.mcmc = function(x, obj_name){
+#   obj_name = c("phi_matrix","lambda_matrix","delta1_matrix","delta2_matrix","sigma2e_matrix")
+#   out = 
+#     do.call(cbind, 
+#       lapply(obj_name, function(z) {
+#         x[[z]]
+#       })
+#     )
+#   colnames(out)
+#   out
+# }
+
+
+
+#' @rdaname plotmcmc 
+#' @export
 plotmcmc2 = function(x,...) UseMethod("plotmcmc2", x)
 
-plotmcmc2.default = function(x, name, file="mcmc_plot.pdf", tail){
+
+
+#' plotmcmc2.default
+#' @name plotmcmc2.default
+#' @aliases plotmcmc2.default
+#' @title plotmcmc2.default
+#' @detail plotmcmc2.default
+#' @param x x
+#' @param name name
+#' @param file file
+#' @param tail tail
+#' @param ... ... 
+#' @method plotmcmc2 default
+#' @S3method plotmcmc2 default
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+plotmcmc2.default = function(x, name, file="mcmc_plot.pdf", tail,...){
   if (!missing(tail)){
     x = lapply(x, function(z) tail(z,tail))
   }
@@ -490,21 +679,31 @@ plotmcmc2.default = function(x, name, file="mcmc_plot.pdf", tail){
 
 
 
-save.mcmc = function(x, i , foldername){
-  if (missing(i)){
-    i = x$index 
-  }
-  if (!is.null(x$index)){
-    i = x$index
-  }
+# save.mcmc = function(x, i , foldername){
+#   if (missing(i)){
+#     i = x$index 
+#   }
+#   if (!is.null(x$index)){
+#     i = x$index
+#   }
 
-  obj_name = "out"%+%i
-  assign(obj_name, x)
-  # save(list=obj_name , file=foldername %+% "last.rData")
-  save(list=obj_name , file=foldername %+% format(Sys.time(), "%y%m%d%H%M%S")%+%".rData")
-  rm(list = "obj_name")
-}
+#   obj_name = "out"%+%i
+#   assign(obj_name, x)
+#   # save(list=obj_name , file=foldername %+% "last.rData")
+#   save(list=obj_name , file=foldername %+% format(Sys.time(), "%y%m%d%H%M%S")%+%".rData")
+#   rm(list = "obj_name")
+# }
 
+#' loadMergeMCMC
+#' @name loadMergeMCMC
+#' @aliases loadMergeMCMC
+#' @title loadMergeMCMC
+#' @detail loadMergeMCMC
+#' @param max max number of merge
+#' @param folder_exist vector of names of folder 
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 loadMergeMCMC = function(max=40,folder_exist){
   if (missing(folder_exist))
     folder_exist = checkFolder()
@@ -538,6 +737,14 @@ loadMergeMCMC = function(max=40,folder_exist){
   chain_list
 }
 
+#' Merge and delete all object in all folder
+#' @name mergeAndDelete
+#' @aliases mergeAndDelete
+#' @title mergeAndDelete
+#' @detail mergeAndDelete
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 mergeAndDelete = function(){
   folder_exist = checkFolder()
 
@@ -574,6 +781,15 @@ mergeAndDelete = function(){
   }
 }
 
+#' Remover file with size zero(corrupted files)
+#' @name removeFileSizeZero
+#' @aliases removeFileSizeZero
+#' @title removeFileSizeZero
+#' @detail removeFileSizeZero
+#' @param folder_name folder_name
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 removeFileSizeZero = function (folder_name){
   folder_name=as.character(folder_name)
   file_name = as.character(folder_name) %+% "/" %+%  dir(folder_name)
@@ -583,6 +799,15 @@ removeFileSizeZero = function (folder_name){
   file.remove(file_with_zero_size)
 }
 
+#' computeSummaryTableFromDrive
+#' @name computeSummaryTableFromDrive
+#' @aliases computeSummaryTableFromDrive
+#' @title computeSummaryTableFromDrive
+#' @detail computeSummaryTableFromDrive
+#' @param path path
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 computeSummaryTableFromDrive = function(path){
   path =  as.character(path)
   file_name = path %+% "/" %+% dir(path)
@@ -613,6 +838,15 @@ computeSummaryTableFromDrive = function(path){
   data.frame(mean=mean_parameter, var=var_parameter, sd= sqrt(var_parameter), m = sum_m)
 } 
 
+#' compareMCMC2
+#' @name compareMCMC2
+#' @aliases compareMCMC2
+#' @title compareMCMC2
+#' @detail compareMCMC2
+#' @param x x
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 compareMCMC2 = function(x){
   name = rownames(x[[1]])
   m = foreach(i=x, .combine=rbind) %do% mean(i$m)

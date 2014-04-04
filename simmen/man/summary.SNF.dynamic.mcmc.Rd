@@ -17,7 +17,7 @@
 A summary table
 }
 \description{
-Description Create a summary table
+Create a summary table
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

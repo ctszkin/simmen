@@ -19,7 +19,7 @@ loglikelihood_SNF(y, x1, x2, delta, y_not)
 value of log likelihood
 }
 \description{
-Description loglikelihood_SNF
+loglikelihood_SNF
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

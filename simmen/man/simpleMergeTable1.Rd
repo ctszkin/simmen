@@ -1,0 +1,23 @@
+\name{simpleMergeTable1}
+\alias{simpleMergeTable1}
+\title{simpleMergeTable1}
+\usage{
+simpleMergeTable1(x, y, colname = c("x", "y"))
+}
+\arguments{
+  \item{x}{x}
+
+  \item{y}{y}
+
+  \item{colname}{colname}
+}
+\value{
+value
+}
+\description{
+simpleMergeTable1
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+

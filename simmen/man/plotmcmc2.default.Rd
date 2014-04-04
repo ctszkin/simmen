@@ -1,0 +1,27 @@
+\name{plotmcmc2.default}
+\alias{plotmcmc2.default}
+\title{plotmcmc2.default}
+\usage{
+\method{plotmcmc2}{default}(x, name, file = "mcmc_plot.pdf", tail, ...)
+}
+\arguments{
+  \item{x}{x}
+
+  \item{name}{name}
+
+  \item{file}{file}
+
+  \item{tail}{tail}
+
+  \item{...}{...}
+}
+\value{
+value
+}
+\description{
+plotmcmc2.default
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+

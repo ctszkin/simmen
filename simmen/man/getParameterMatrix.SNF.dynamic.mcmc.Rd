@@ -19,7 +19,7 @@
 A matrix
 }
 \description{
-Description Get a matrix of parameter
+Get a matrix of parameter
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

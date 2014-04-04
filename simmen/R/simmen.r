@@ -7,6 +7,17 @@
 #   mvrnorm(n=1, mu=lm_fit$coefficients, Sigma=lm_fit$cov)
 # })
 
+#' drawingPhi
+#' @name drawingPhi
+#' @aliases drawingPhi
+#' @title drawingPhi
+#' @detail drawingPhi
+#' @param lambda lambda
+#' @param rho_e rho_e
+#' @param data_matrix data_matrix
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 drawingPhi= function(lambda, rho_e, data_matrix){
   new_y = data_matrix$Y - rho_e - data_matrix$WY %*% lambda
   # for (i in 1:length(lambda))
@@ -21,6 +32,16 @@ drawingPhi= function(lambda, rho_e, data_matrix){
 # drawingPhi(parameter$lambda,parameter$e1,parameter$e2,data_matrix)
 # )
 
+#' logLikeliMultiNormalSigma
+#' @name logLikeliMultiNormalSigma
+#' @aliases logLikeliMultiNormalSigma
+#' @title logLikeliMultiNormalSigma
+#' @detail logLikeliMultiNormalSigma
+#' @param x x
+#' @param sigma sigma
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 logLikeliMultiNormalSigma = function(x, sigma){
   k = ncol(x)
   Sigma = diag(k)
@@ -34,6 +55,23 @@ logLikeliMultiNormalSigma = function(x, sigma){
 
 # Likelihood function of the outcome equation of all different models.
 
+#' loglikelihood_outcome_vector_multi
+#' @name loglikelihood_outcome_vector_multi
+#' @aliases loglikelihood_outcome_vector_multi
+#' @title loglikelihood_outcome_vector_multi
+#' @detail Likelihood function of the outcome equation in vector form
+#' @param e_matrix e_matrix
+#' @param new_e new_e
+#' @param lambda lambda
+#' @param phi phi
+#' @param Y Y
+#' @param X X
+#' @param WY WY
+#' @param network_id network_id
+#' @param rho rho
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 loglikelihood_outcome_vector_multi = function(e_matrix, new_e, lambda, phi, Y, X, WY, network_id, rho){
   n = length(Y)
   if (!is.matrix(e_matrix)){
@@ -61,12 +99,49 @@ loglikelihood_outcome_vector_multi = function(e_matrix, new_e, lambda, phi, Y, X
   out
 }
 
+#' parser of likelihood function to rho 
+#' @name lik_multi_exogenous_parser_rho
+#' @aliases lik_multi_exogenous_parser_rho
+#' @title lik_multi_exogenous_parser_rho
+#' @detail lik_multi_exogenous_parser_rho
+#' @param lambda lambda
+#' @param phi phi
+#' @param X X
+#' @param Y Y
+#' @param WY WY
+#' @param W_list W_list
+#' @param n_vector n_vector
+#' @param e e
+#' @param rho rho
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 lik_multi_exogenous_parser_rho = function(lambda, phi, X, Y, WY, W_list, n_vector, e, rho){
 
   lik_multi_exogenous(lambda, phi, X, Y-  e %*% rho  , WY,  W_list, n_vector)
 
 }
 
+#' update the value of e
+#' @name update_e_multi
+#' @aliases update_e_multi
+#' @title update_e_multi
+#' @detail update_e_multi
+#' @param data data
+#' @param e_matrix e_matrix
+#' @param delta delta
+#' @param network_data network_data
+#' @param tau tau
+#' @param lambda lambda
+#' @param rho rho
+#' @param phi phi
+#' @param network_id network_id
+#' @param ystar1 ystar1
+#' @param ystar2 ystar2
+#' @param Sigma Sigma
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 update_e_multi = function(data, e_matrix, delta, network_data, tau, lambda, rho, phi, network_id, ystar1, ystar2, Sigma){
 
   # e_dist = match.arg(e_dist)
@@ -328,7 +403,20 @@ update_e_multi = function(data, e_matrix, delta, network_data, tau, lambda, rho,
 
 
 
-
+#' Update the sign of e
+#' @name update_sign_e_multi
+#' @aliases update_sign_e_multi
+#' @title update_sign_e_multi
+#' @detail update_sign_e_multi
+#' @param lambda lambda
+#' @param phi phi
+#' @param rho rho
+#' @param data_matrix data_matrix
+#' @param e_list e_list
+#' @param network_id network_id
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 update_sign_e_multi = function(lambda,phi,rho, data_matrix, e_list, network_id){
   n = data_matrix$n_vector
 
@@ -370,6 +458,23 @@ update_sign_e_multi = function(lambda,phi,rho, data_matrix, e_list, network_id){
 #############################################################################################################################
 #############################################################################################################################
 
+#' Social Interaction Model with Multiple Endogenous Networks
+#' @name simmen
+#' @aliases simmen
+#' @title Social Interaction Model with Multiple Endogenous Networks
+#' @detail Social Interaction Model with Multiple Endogenous Networks
+#' @param m Number of iteration
+#' @param data data
+#' @param last_out previous estimation
+#' @param allow_correlation Logical. Allow correlation between network
+#' @param update_sign Logical. Whether to update sign of e
+#' @param initial_seed seed for the first round
+#' @param seed_for_chain generate seed for each chain
+#' @param start_value_delta_diff_e start value of the coefficient of abs(ei-ej)
+#' @param tau_e sd of sampling distribution
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 simmen = function(m, data, last_out, allow_correlation=TRUE, update_sign=TRUE, initial_seed = 100, seed_for_chain = round(runif(1)*10000),   start_value_delta_diff_e  = 0 , tau_e=1){
   # e_dist = match.arg(e_dist)
 
@@ -758,7 +863,19 @@ simmen = function(m, data, last_out, allow_correlation=TRUE, update_sign=TRUE, i
 
 
 
-
+#' merge.simmen
+#' @name merge.simmen
+#' @aliases merge.simmen
+#' @title merge.simmen
+#' @detail merge.simmen
+#' @param x x
+#' @param y y 
+#' @param ... ... 
+#' @method merge simmen
+#' @S3method merge simmen
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 merge.simmen = function(x,y,...){
   if (length(list(...))>0){
     list_args = list(...)
@@ -791,13 +908,40 @@ merge.simmen = function(x,y,...){
 
 
 
-
-plotmcmc2.simmen = function(x, name, file="mcmc_plot.pdf", tail=10000){
+#' plotmcmc2.simmen
+#' @name plotmcmc2.simmen
+#' @aliases plotmcmc2.simmen
+#' @title plotmcmc2.simmen
+#' @detail plotmcmc2.simmen
+#' @param x x
+#' @param name name
+#' @param file filename of the plot, Default is "mcmc_plot.pdf"
+#' @param tail How many observation of tail to use. tail<0 means remove first -tail iteration. -1<tail<1 means percentage 
+#' @param ... ...
+#' @return value
+#' @method plotmcmc2 simmen
+#' @S3method plotmcmc2 simmen
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+plotmcmc2.simmen = function(x, name, file="mcmc_plot.pdf", tail=10000,...){
   xx = lapply(x, getParameterMatrix)
   plotmcmc2.default(xx, name=name, tail=tail )
 }
 
-getParameterMatrix.simmen = function(x,tail){
+#' Get a matrix of all parameters
+#' @name getParameterMatrix.simmen
+#' @aliases getParameterMatrix.simmen
+#' @title getParameterMatrix.simmen
+#' @detail getParameterMatrix.simmen
+#' @param x x
+#' @param tail tail
+#' @param ... ...
+#' @method getParameterMatrix simmen
+#' @S3method getParameterMatrix simmen
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+getParameterMatrix.simmen = function(x,tail,...){
   delta_matrix = do.call(cbind, x$delta)
 
   out = cbind(x$phi,x$rho,x$lambda,delta_matrix,x$Sigma_matrix)
@@ -810,8 +954,20 @@ getParameterMatrix.simmen = function(x,tail){
 
 
 
-
-plotmcmc.simmen = function(x, tail=-0.2){
+#' plotmcmc.simmen
+#' @name plotmcmc.simmen
+#' @aliases plotmcmc.simmen
+#' @title plotmcmc.simmen
+#' @detail plotmcmc.simmen
+#' @param x x
+#' @param tail tail
+#' @param ... ...
+#' @method plotmcmc simmen
+#' @S3method plotmcmc simmen
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+plotmcmc.simmen = function(x, tail=-0.2,...){
   #x11(20,20)
   plotmcmc(cbind(x$phi,x$rho,x$lambda), tail=tail)
   #x11(20,20)
@@ -873,7 +1029,16 @@ plotmcmc.simmen = function(x, tail=-0.2){
 # }
 
 
-
+#' Compute the likelihood basic on the parameter of last iteration.
+#' @name findLikelihood
+#' @aliases findLikelihood
+#' @title findLikelihood
+#' @detail findLikelihood
+#' @param data data
+#' @param last_out last_out
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
 findLikelihood = function(data, last_out) {
   number_of_network = length(data[[1]]$D_list)
   network_data = genNetworkData(data)

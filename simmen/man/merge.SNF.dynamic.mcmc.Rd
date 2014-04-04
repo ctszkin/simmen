@@ -15,7 +15,7 @@
 A new SNF.dynamic.mcmc object
 }
 \description{
-Description merge.SNF.dynamic.mcmc
+merge.SNF.dynamic.mcmc
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

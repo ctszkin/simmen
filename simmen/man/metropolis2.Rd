@@ -1,0 +1,32 @@
+\name{metropolis2}
+\alias{metropolis2}
+\title{metropolis2}
+\usage{
+metropolis2(beta_previous, tau, likelihoodFunction, prior_type = "normal",
+  sampling_type = "normal", ...)
+}
+\arguments{
+  \item{beta_previous}{beta_previous}
+
+  \item{tau}{scale of sampling distribution}
+
+  \item{likelihoodFunction}{likelihoodFunction}
+
+  \item{prior_type}{Default is "normal" , see
+  \link{priorFunction}}
+
+  \item{sampling_type}{Default is "normal", see
+  \link{samplingFunction}}
+
+  \item{...}{...}
+}
+\value{
+value
+}
+\description{
+metropolis2
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+

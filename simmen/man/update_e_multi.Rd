@@ -1,0 +1,42 @@
+\name{update_e_multi}
+\alias{update_e_multi}
+\title{update_e_multi}
+\usage{
+update_e_multi(data, e_matrix, delta, network_data, tau, lambda, rho, phi,
+  network_id, ystar1, ystar2, Sigma)
+}
+\arguments{
+  \item{data}{data}
+
+  \item{e_matrix}{e_matrix}
+
+  \item{delta}{delta}
+
+  \item{network_data}{network_data}
+
+  \item{tau}{tau}
+
+  \item{lambda}{lambda}
+
+  \item{rho}{rho}
+
+  \item{phi}{phi}
+
+  \item{network_id}{network_id}
+
+  \item{ystar1}{ystar1}
+
+  \item{ystar2}{ystar2}
+
+  \item{Sigma}{Sigma}
+}
+\value{
+value
+}
+\description{
+update the value of e
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+

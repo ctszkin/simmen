@@ -1,8 +1,17 @@
 \name{SNF}
 \alias{SNF}
+\alias{SNF.dynamic.mcmc}
+\alias{SNF.static.maxLik}
+\alias{SNF.static.mcmc}
 \title{SNF}
 \usage{
 SNF(data, method = c("static.maxLik", "static.mcmc", "dynamic.mcmc"), ...)
+
+SNF.static.maxLik(data, ...)
+
+SNF.static.mcmc(data, m = 1000, last_estimation, ...)
+
+SNF.dynamic.mcmc(m, data, last_estimation, update_tau = TRUE, tau = 0.005)
 }
 \arguments{
   \item{data}{data}
@@ -11,14 +20,21 @@ SNF(data, method = c("static.maxLik", "static.mcmc", "dynamic.mcmc"), ...)
   "static.maxLik","static.mcmc","dynamic.mcmc". Default is
   "static.maxLik"}
 
-  \item{...}{others argument. See \link{SNF.static.maxLik},
-  \link{SNF.static.mcmc}, \link{SNF.dynamic.mcmc}}
+  \item{m}{m}
+
+  \item{last_estimation}{last_estimation}
+
+  \item{update_tau}{update_tau}
+
+  \item{tau}{tau}
+
+  \item{...}{others argument.}
 }
 \value{
 SNF object
 }
 \description{
-Description Strategy Network Formation
+Strategy Network Formation
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

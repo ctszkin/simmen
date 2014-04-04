@@ -19,7 +19,7 @@ drawYstar(y, ystar_other, mean, y_not = !y, sd = 1)
 value
 }
 \description{
-Description drawYstar
+drawYstar
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

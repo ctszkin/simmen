@@ -1,0 +1,23 @@
+\name{dnorm.diff}
+\alias{dnorm.diff}
+\title{dnorm.diff}
+\usage{
+dnorm.diff(x, y, log = TRUE)
+}
+\arguments{
+  \item{x}{x}
+
+  \item{y}{y}
+
+  \item{log}{logical. log density?}
+}
+\value{
+value
+}
+\description{
+difference of log normal density between x and y
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+

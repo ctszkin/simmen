@@ -13,7 +13,7 @@ computeNetworkSummary(seq_m, D)
 value
 }
 \description{
-Description computeNetworkSummary
+computeNetworkSummary
 }
 \author{
 TszKin Julian Chan \email{ctszkin@gmail.com}

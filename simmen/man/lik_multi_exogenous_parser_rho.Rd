@@ -1,0 +1,35 @@
+\name{lik_multi_exogenous_parser_rho}
+\alias{lik_multi_exogenous_parser_rho}
+\title{lik_multi_exogenous_parser_rho}
+\usage{
+lik_multi_exogenous_parser_rho(lambda, phi, X, Y, WY, W_list, n_vector, e, rho)
+}
+\arguments{
+  \item{lambda}{lambda}
+
+  \item{phi}{phi}
+
+  \item{X}{X}
+
+  \item{Y}{Y}
+
+  \item{WY}{WY}
+
+  \item{W_list}{W_list}
+
+  \item{n_vector}{n_vector}
+
+  \item{e}{e}
+
+  \item{rho}{rho}
+}
+\value{
+value
+}
+\description{
+parser of likelihood function to rho
+}
+\author{
+TszKin Julian Chan \email{ctszkin@gmail.com}
+}
+
