@@ -1,6 +1,9 @@
 #' @import Jmisc SESHK2011 MASS foreach mvtnorm parallel maxLik plyr truncnorm Matrix MCMCpack Formula
 NULL
 
+#' @useDynLib simmen
+NULL
+
 #' Flexible version of tail
 #' @name extractTail
 #' @detail if  |x| < 1, x will be considered as a percentage, otherwise, it will be return tail(x,tail)
