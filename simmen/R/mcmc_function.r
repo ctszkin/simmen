@@ -678,21 +678,31 @@ plotmcmc2.default = function(x, name, file="mcmc_plot.pdf", tail,...){
 }
 
 
+#' save.mcmc
+#' @name save.mcmc
+#' @aliases save.mcmc
+#' @title save.mcmc
+#' @detail save.mcmc
+#' @param x x
+#' @param i i 
+#' @param foldername foldername
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+save.mcmc = function(x, i , foldername){
+  if (missing(i)){
+    i = x$index 
+  }
+  if (!is.null(x$index)){
+    i = x$index
+  }
 
-# save.mcmc = function(x, i , foldername){
-#   if (missing(i)){
-#     i = x$index 
-#   }
-#   if (!is.null(x$index)){
-#     i = x$index
-#   }
-
-#   obj_name = "out"%+%i
-#   assign(obj_name, x)
-#   # save(list=obj_name , file=foldername %+% "last.rData")
-#   save(list=obj_name , file=foldername %+% format(Sys.time(), "%y%m%d%H%M%S")%+%".rData")
-#   rm(list = "obj_name")
-# }
+  obj_name = "out"%+%i
+  assign(obj_name, x)
+  # save(list=obj_name , file=foldername %+% "last.rData")
+  save(list=obj_name , file=foldername %+% format(Sys.time(), "%y%m%d%H%M%S")%+%".rData")
+  rm(list = "obj_name")
+}
 
 #' loadMergeMCMC
 #' @name loadMergeMCMC
