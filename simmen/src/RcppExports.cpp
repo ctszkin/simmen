@@ -6,8 +6,8 @@
 #include <Rcpp.h>
 
 using namespace Rcpp;
-using namespace arma;
-using namespace Eigen;
+// using namespace arma;
+// using namespace Eigen;
 
 using Eigen::LLT;
 using Eigen::Lower;
