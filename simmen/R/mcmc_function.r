@@ -450,11 +450,12 @@ plotmcmc_ma = function(x, tail,...){
 #' @detail compareMCMC
 #' @param x x
 #' @param tail tail
+#' @param plot Logical. Whether to have plot
 #' @param pdf Logical
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-compareMCMC = function(x, tail, pdf=FALSE){
+compareMCMC = function(x, tail, plot=FALSE, pdf=FALSE){
   if (missing(tail)){
     tail = NA
   }
@@ -510,23 +511,25 @@ compareMCMC = function(x, tail, pdf=FALSE){
 
   non_converge_summary_table_simple = summary_table_simple[which(!converge1),]
   
-  if (file.exists("non_converge.pdf")){
-    file.remove("non_converge.pdf")
+  if (plot){
+    if (file.exists("non_converge.pdf")){
+      file.remove("non_converge.pdf")
+    }
+    if (pdf){
+      pdf(file="non_converge.pdf",height=12,width=10)
+    }
+    for (j in which(!converge1)){
+      mean = summary_table_simple[j,]$estimates
+      min = min(parameter_matrix_all[,j])
+      max = max(parameter_matrix_all[,j])
+      plot.new()
+      plotmcmc_byid(parameter_matrix_list,j,mean,min,max)
+    }
+    if (pdf){
+      dev.off() 
+    }
+    # plotmcmc4(x,tail)
   }
-  if (pdf){
-    pdf(file="non_converge.pdf",height=12,width=10)
-  }
-  for (j in which(!converge1)){
-    mean = summary_table_simple[j,]$estimates
-    min = min(parameter_matrix_all[,j])
-    max = max(parameter_matrix_all[,j])
-    plot.new()
-    plotmcmc_byid(parameter_matrix_list,j,mean,min,max)
-  }
-  if (pdf){
-    dev.off() 
-  }
-  # plotmcmc4(x,tail)
 
   list(summary_table_simple = summary_table_simple, non_converge=non_converge, non_converge_summary_table_simple=non_converge_summary_table_simple)
 }
