@@ -43,13 +43,20 @@ drawingPhi= function(lambda, rho_e, data_matrix){
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 logLikeliMultiNormalSigma = function(x, sigma){
-  k = ncol(x)
+  k = NCOL(x)
   Sigma = diag(k)
   Sigma[lower.tri(Sigma)] = sigma
   Sigma[upper.tri(Sigma)] =  t(Sigma)[upper.tri(Sigma)]
 
 
-  sum ( dmvnorm(x, sigma= Sigma ,log=T) )
+  out = sum ( dmvnorm(x, sigma= Sigma ,log=T) )
+
+  if (!is.finite(out)){
+    warning(paste0("logLikeliMultiNormalSigma has non numeric log like.")," x=",x," sigma=",sigma," k=",k," Sigma=",Sigma )
+    return(-1e+20)
+  } else {
+    out
+  }
 }
 
 
