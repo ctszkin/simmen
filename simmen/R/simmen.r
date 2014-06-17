@@ -952,7 +952,7 @@ getParameterMatrix.simmen = function(x,tail,...){
   delta_matrix = do.call(cbind, x$delta)
 
   arg = list(...)
-  cat(length(arg),"\n", arg[[1]],"\n")
+  # cat(length(arg),"\n", arg[[1]],"\n")
   if (length(arg) > 0 ){
     out =  x[[arg[[1]]]]
   } else{
