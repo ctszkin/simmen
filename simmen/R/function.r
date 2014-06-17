@@ -61,19 +61,6 @@ computeSummaryTable = function(x, tail){
 #' @export
 computeFittedValue = function(x,data,...) UseMethod("computeFittedValue", x)
 
-#' merge
-#' @name merge
-#' @aliases merge
-#' @title merge
-#' @details merge
-#' @param x x
-#' @param y y
-#' @param ... ...
-#' @return value
-#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
-#' @export
-merge = function(x,y,...) UseMethod("merge", x)
-
 
 #' getParameterMatrix
 #' @name getParameterMatrix
