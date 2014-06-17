@@ -5,7 +5,7 @@
 #' @name myFastLm
 #' @aliases myFastLm
 #' @title myFastLm
-#' @detail myFastLm
+#' @details myFastLm
 #' @param X X
 #' @param y y 
 #' @return value
@@ -39,7 +39,7 @@ test <- function(x) {
 #' @name update_e_internal_single
 #' @aliases update_e_internal_single
 #' @title update_e_internal_single
-#' @detail update_e_internal_single
+#' @details update_e_internal_single
 #' @param location_index_all location_index_all
 #' @param location_index1 location_index1
 #' @param location_index2 location_index2
@@ -68,7 +68,7 @@ update_e_internal_single <- function(location_index_all, location_index1, locati
 #' @name computeNetworkSummary_cxx
 #' @aliases computeNetworkSummary_cxx
 #' @title computeNetworkSummary_cxx
-#' @detail computeNetworkSummary_cxx
+#' @details computeNetworkSummary_cxx
 #' @param seq_m seq_m
 #' @param D D
 #' @return value

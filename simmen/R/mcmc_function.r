@@ -2,7 +2,7 @@
 #' @name priorFunction
 #' @aliases priorFunction
 #' @title priorFunction
-#' @detail priorFunction
+#' @details priorFunction
 #' @param x x
 #' @param type "normal","invgamma","uniform","trunc_normal"
 #' @return value
@@ -24,7 +24,7 @@ priorFunction = function(x, type=c("normal","invgamma","uniform","trunc_normal")
 #' @name samplingFunction
 #' @aliases samplingFunction
 #' @title samplingFunction
-#' @detail samplingFunction
+#' @details samplingFunction
 #' @param beta beta
 #' @param tau tau 
 #' @param type "normal","invgamma","uniform","trunc_normal"
@@ -48,7 +48,7 @@ samplingFunction = function(beta, tau, type=c("normal","invgamma","uniform","tru
 #' @name metropolis
 #' @aliases metropolis
 #' @title metropolis
-#' @detail metropolis
+#' @details metropolis
 #' @param beta_previous beta_previous
 #' @param tau scale of sampling distribution
 #' @param likelihoodFunction likelihoodFunction
@@ -88,7 +88,7 @@ metropolis = function(beta_previous, tau, likelihoodFunction, prior_type="normal
 #' @name metropolis2
 #' @aliases metropolis2
 #' @title metropolis2
-#' @detail metropolis2
+#' @details metropolis2
 #' @param beta_previous beta_previous
 #' @param tau scale of sampling distribution
 #' @param likelihoodFunction likelihoodFunction
@@ -131,7 +131,7 @@ metropolis2 = function(beta_previous, tau, likelihoodFunction, prior_type="norma
 #' @name findplotIndex
 #' @aliases findplotIndex
 #' @title findplotIndex
-#' @detail findplotIndex
+#' @details findplotIndex
 #' @param x x
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
@@ -168,7 +168,7 @@ findplotIndex = function(x){
 #' @rdname invgamma
 #' @aliases dinvgamma rinvgamma
 #' @title invgamma
-#' @detail Inverse gamma Distribution
+#' @details Inverse gamma Distribution
 #' @param x x
 #' @param n n
 #' @param shape shape
@@ -209,7 +209,7 @@ rinvgamma = function (n, shape, scale = 1)
 #' @name uniqueRow
 #' @aliases uniqueRow
 #' @title uniqueRow
-#' @detail uniqueRow
+#' @details uniqueRow
 #' @param x x
 #' @param number_of_col number_of_col
 #' @param percentage percentage
@@ -231,10 +231,10 @@ uniqueRow = function(x, number_of_col = "all", percentage=TRUE){
 
 #' load first/last object
 #' @name loadLastObject
-#' @rdaname loadLastObject
+#' @rdname loadLastObject
 #' @aliases loadLastObject loadFirstObject readAllLastObject
 #' @title loadLastObject
-#' @detail load first/last/all last object. \code{readAllLastObject} will read all last object from every folder (with name from 1 to 20)
+#' @details load first/last/all last object. \code{readAllLastObject} will read all last object from every folder (with name from 1 to 20)
 #' @param foldername foldername
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
@@ -245,7 +245,7 @@ loadLastObject = function(foldername){
   get(obj_name)
 }
 
-#' @rdaname loadLastObject
+#' @rdname loadLastObject
 #' @export
 loadFirstObject = function(foldername){
   file_name = sort( setdiff(dir(foldername), "last.rData") , decreasing=FALSE)[1]
@@ -253,7 +253,7 @@ loadFirstObject = function(foldername){
   get(obj_name)
 }
 
-#' @rdaname loadLastObject
+#' @rdname loadLastObject
 #' @export
 readAllLastObject = function(){
   i=NULL
@@ -266,7 +266,7 @@ readAllLastObject = function(){
 #' @name readAllObject
 #' @aliases readAllObject
 #' @title readAllObject
-#' @detail readAllObject
+#' @details readAllObject
 #' @param path path
 #' @param except vector of filenames for exclusion
 #' @return value
@@ -380,7 +380,7 @@ readAllObject = function(path, except){
 #' @name plotmcmc_byid
 #' @aliases plotmcmc_byid
 #' @title plotmcmc_byid
-#' @detail plotmcmc_byid
+#' @details plotmcmc_byid
 #' @param x x
 #' @param id id
 #' @param mean mean
@@ -406,7 +406,7 @@ plotmcmc_byid = function(x, id, mean,min,max){
 #' @name plotmcmc_ma
 #' @aliases plotmcmc_ma
 #' @title plotmcmc_ma
-#' @detail plotmcmc_ma
+#' @details plotmcmc_ma
 #' @param x x
 #' @param tail tail
 #' @param ... ... 
@@ -447,7 +447,7 @@ plotmcmc_ma = function(x, tail,...){
 #' @name compareMCMC
 #' @aliases compareMCMC
 #' @title compareMCMC
-#' @detail compareMCMC
+#' @details compareMCMC
 #' @param x x
 #' @param tail tail
 #' @param plot Logical. Whether to have plot
@@ -539,12 +539,12 @@ compareMCMC = function(x, tail, plot=FALSE, pdf=FALSE){
 #' @name plotmcmc.default
 #' @aliases plotmcmc.default
 #' @title plotmcmc.default
-#' @detail plotmcmc.default
+#' @details plotmcmc.default
 #' @param x x
 #' @param tail tail
 #' @param ... ...
 #' @method plotmcmc default
-#' @S3method plotmcmc default
+#' @export plotmcmc
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
@@ -576,10 +576,10 @@ plotmcmc.default = function(x,tail=0,...){
 
 #' plotmcmc
 #' @name plotmcmc
-#' @rdaname plotmcmc 
+#' @rdname plotmcmc
 #' @aliases plotmcmc plotmcmc2
 #' @title plotmcmc
-#' @detail plotmcmc
+#' @details plotmcmc
 #' @param x x
 #' @param ... ... 
 #' @return value
@@ -611,7 +611,7 @@ plotmcmc = function(x,...) UseMethod("plotmcmc", x)
 
 
 
-#' @rdaname plotmcmc 
+#' @rdname plotmcmc 
 #' @export
 plotmcmc2 = function(x,...) UseMethod("plotmcmc2", x)
 
@@ -621,14 +621,14 @@ plotmcmc2 = function(x,...) UseMethod("plotmcmc2", x)
 #' @name plotmcmc2.default
 #' @aliases plotmcmc2.default
 #' @title plotmcmc2.default
-#' @detail plotmcmc2.default
+#' @details plotmcmc2.default
 #' @param x x
 #' @param name name
 #' @param file file
 #' @param tail tail
 #' @param ... ... 
 #' @method plotmcmc2 default
-#' @S3method plotmcmc2 default
+#' @export plotmcmc2 
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
@@ -685,7 +685,7 @@ plotmcmc2.default = function(x, name, file="mcmc_plot.pdf", tail,...){
 #' @name save.mcmc
 #' @aliases save.mcmc
 #' @title save.mcmc
-#' @detail save.mcmc
+#' @details save.mcmc
 #' @param x x
 #' @param i i 
 #' @param foldername foldername
@@ -711,7 +711,7 @@ save.mcmc = function(x, i , foldername){
 #' @name loadMergeMCMC
 #' @aliases loadMergeMCMC
 #' @title loadMergeMCMC
-#' @detail loadMergeMCMC
+#' @details loadMergeMCMC
 #' @param max max number of merge
 #' @param folder_exist vector of names of folder 
 #' @return value
@@ -754,7 +754,7 @@ loadMergeMCMC = function(max=40,folder_exist){
 #' @name mergeAndDelete
 #' @aliases mergeAndDelete
 #' @title mergeAndDelete
-#' @detail mergeAndDelete
+#' @details mergeAndDelete
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
@@ -798,7 +798,7 @@ mergeAndDelete = function(){
 #' @name removeFileSizeZero
 #' @aliases removeFileSizeZero
 #' @title removeFileSizeZero
-#' @detail removeFileSizeZero
+#' @details removeFileSizeZero
 #' @param folder_name folder_name
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
@@ -816,12 +816,14 @@ removeFileSizeZero = function (folder_name){
 #' @name computeSummaryTableFromDrive
 #' @aliases computeSummaryTableFromDrive
 #' @title computeSummaryTableFromDrive
-#' @detail computeSummaryTableFromDrive
+#' @details computeSummaryTableFromDrive
 #' @param path path
+#' @param tail tail
+#' @param ... ...
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
-computeSummaryTableFromDrive = function(path){
+computeSummaryTableFromDrive = function(path, tail,...){
   path =  as.character(path)
   file_name = path %+% "/" %+% dir(path)
   out_list_mean = vector("list",length(file_name))
@@ -831,7 +833,7 @@ computeSummaryTableFromDrive = function(path){
     env1 = new.env()
     load(file_name[i], envir = env1)
     env1 = as.list(env1)
-    tmp = getParameterMatrix( env1[[1]] )
+    tmp = getParameterMatrix( env1[[1]] , tail,...)
     out_list_mean[[i]] = colMeans(tmp)
     out_list_mean_square[[i]] = colMeans(tmp^2)
     m_vector[i] = env1[[1]]$m
@@ -855,7 +857,7 @@ computeSummaryTableFromDrive = function(path){
 #' @name compareMCMC2
 #' @aliases compareMCMC2
 #' @title compareMCMC2
-#' @detail compareMCMC2
+#' @details compareMCMC2
 #' @param x x
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}

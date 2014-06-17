@@ -11,7 +11,7 @@
 #' @name drawingPhi
 #' @aliases drawingPhi
 #' @title drawingPhi
-#' @detail drawingPhi
+#' @details drawingPhi
 #' @param lambda lambda
 #' @param rho_e rho_e
 #' @param data_matrix data_matrix
@@ -36,7 +36,7 @@ drawingPhi= function(lambda, rho_e, data_matrix){
 #' @name logLikeliMultiNormalSigma
 #' @aliases logLikeliMultiNormalSigma
 #' @title logLikeliMultiNormalSigma
-#' @detail logLikeliMultiNormalSigma
+#' @details logLikeliMultiNormalSigma
 #' @param x x
 #' @param sigma sigma
 #' @return value
@@ -66,7 +66,7 @@ logLikeliMultiNormalSigma = function(x, sigma){
 #' @name loglikelihood_outcome_vector_multi
 #' @aliases loglikelihood_outcome_vector_multi
 #' @title loglikelihood_outcome_vector_multi
-#' @detail Likelihood function of the outcome equation in vector form
+#' @details Likelihood function of the outcome equation in vector form
 #' @param e_matrix e_matrix
 #' @param new_e new_e
 #' @param lambda lambda
@@ -110,7 +110,7 @@ loglikelihood_outcome_vector_multi = function(e_matrix, new_e, lambda, phi, Y, X
 #' @name lik_multi_exogenous_parser_rho
 #' @aliases lik_multi_exogenous_parser_rho
 #' @title lik_multi_exogenous_parser_rho
-#' @detail lik_multi_exogenous_parser_rho
+#' @details lik_multi_exogenous_parser_rho
 #' @param lambda lambda
 #' @param phi phi
 #' @param X X
@@ -133,7 +133,7 @@ lik_multi_exogenous_parser_rho = function(lambda, phi, X, Y, WY, W_list, n_vecto
 #' @name update_e_multi
 #' @aliases update_e_multi
 #' @title update_e_multi
-#' @detail update_e_multi
+#' @details update_e_multi
 #' @param data data
 #' @param e_matrix e_matrix
 #' @param delta delta
@@ -414,7 +414,7 @@ update_e_multi = function(data, e_matrix, delta, network_data, tau, lambda, rho,
 #' @name update_sign_e_multi
 #' @aliases update_sign_e_multi
 #' @title update_sign_e_multi
-#' @detail update_sign_e_multi
+#' @details update_sign_e_multi
 #' @param lambda lambda
 #' @param phi phi
 #' @param rho rho
@@ -469,7 +469,7 @@ update_sign_e_multi = function(lambda,phi,rho, data_matrix, e_list, network_id){
 #' @name simmen
 #' @aliases simmen
 #' @title Social Interaction Model with Multiple Endogenous Networks
-#' @detail Social Interaction Model with Multiple Endogenous Networks
+#' @details Social Interaction Model with Multiple Endogenous Networks
 #' @param m Number of iteration
 #' @param data data
 #' @param last_out previous estimation
@@ -874,12 +874,12 @@ simmen = function(m, data, last_out, allow_correlation=TRUE, update_sign=TRUE, i
 #' @name merge.simmen
 #' @aliases merge.simmen
 #' @title merge.simmen
-#' @detail merge.simmen
+#' @details merge.simmen
 #' @param x x
 #' @param y y 
 #' @param ... ... 
 #' @method merge simmen
-#' @S3method merge simmen
+#' @export merge simmen
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
@@ -919,7 +919,7 @@ merge.simmen = function(x,y,...){
 #' @name plotmcmc2.simmen
 #' @aliases plotmcmc2.simmen
 #' @title plotmcmc2.simmen
-#' @detail plotmcmc2.simmen
+#' @details plotmcmc2.simmen
 #' @param x x
 #' @param name name
 #' @param file filename of the plot, Default is "mcmc_plot.pdf"
@@ -927,7 +927,7 @@ merge.simmen = function(x,y,...){
 #' @param ... ...
 #' @return value
 #' @method plotmcmc2 simmen
-#' @S3method plotmcmc2 simmen
+#' @export plotmcmc2 simmen
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 plotmcmc2.simmen = function(x, name, file="mcmc_plot.pdf", tail=10000,...){
@@ -939,19 +939,25 @@ plotmcmc2.simmen = function(x, name, file="mcmc_plot.pdf", tail=10000,...){
 #' @name getParameterMatrix.simmen
 #' @aliases getParameterMatrix.simmen
 #' @title getParameterMatrix.simmen
-#' @detail getParameterMatrix.simmen
+#' @details getParameterMatrix.simmen
 #' @param x x
 #' @param tail tail
-#' @param ... ...
+#' @param ... can specify the name of one parameter(e.g. getParameterMatrix(x,tail=50,a="phi")). All parameter if missing. 
 #' @method getParameterMatrix simmen
-#' @S3method getParameterMatrix simmen
+#' @export getParameterMatrix simmen
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 getParameterMatrix.simmen = function(x,tail,...){
   delta_matrix = do.call(cbind, x$delta)
 
-  out = cbind(x$phi,x$rho,x$lambda,delta_matrix,x$Sigma_matrix)
+  arg = list(...)
+  cat(length(arg),"\n", arg[[1]],"\n")
+  if (length(arg) > 0 ){
+    out =  x[[arg[[1]]]]
+  } else{
+    out = cbind(x$phi,x$rho,x$lambda,delta_matrix,x$Sigma_matrix)
+  }
   # colnames(out) = x$name
   if (!missing(tail) & is.numeric(tail) ) {
     out = tail(out,tail)
@@ -965,12 +971,12 @@ getParameterMatrix.simmen = function(x,tail,...){
 #' @name plotmcmc.simmen
 #' @aliases plotmcmc.simmen
 #' @title plotmcmc.simmen
-#' @detail plotmcmc.simmen
+#' @details plotmcmc.simmen
 #' @param x x
 #' @param tail tail
 #' @param ... ...
 #' @method plotmcmc simmen
-#' @S3method plotmcmc simmen
+#' @export plotmcmc simmen
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
@@ -1040,7 +1046,7 @@ plotmcmc.simmen = function(x, tail=-0.2,...){
 #' @name findLikelihood
 #' @aliases findLikelihood
 #' @title findLikelihood
-#' @detail findLikelihood
+#' @details findLikelihood
 #' @param data data
 #' @param last_out last_out
 #' @return value
@@ -1157,3 +1163,49 @@ findLikelihood = function(data, last_out) {
 }
 
 # lapply(loaded_files, findLikelihood ,data=data)
+
+
+
+
+
+#' Compute the fitted value of the model.
+#' @name computeFittedValue.simmen
+#' @aliases computeFittedValue.simmen
+#' @title computeFittedValue.simmen
+#' @details computeFittedValue.simmen
+#' @param x x
+#' @param data data
+#' @param ... ...
+#' @method computeFittedValue simmen
+#' @export computeFittedValue simmen
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+computeFittedValue.simmen = function(x,data,...){
+  phi = colMeans(x$phi)
+  lambda = colMeans(x$lambda)
+  computeFV(phi, lambda, data)
+}
+
+#' Compute the fitted value of the model.
+#' @name computeFV
+#' @aliases computeFV
+#' @title computeFV
+#' @details computeFV
+#' @param phi phi
+#' @param lambda lambda
+#' @param data data
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+
+computeFV = function(phi, lambda, data){
+  i = NULL
+  foreach(i = data, .combine= rbind) %do% {
+    I_lambda_W = diag(i$n)
+    for (j in 1:length(i$W_list)){
+      I_lambda_W = I_lambda_W - lambda[j] * i$W_list[[j]]
+    }
+    solve(I_lambda_W) %*% i$x_wx %*% phi
+  }
+}

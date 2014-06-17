@@ -284,7 +284,7 @@ SNF.static.mcmc = function(data, m=1000, last_estimation,...){
 #' @param ... not used
 #' @return A new SNF.static.mcmc object
 #' @method merge SNF.static.mcmc
-#' @S3method merge SNF.static.mcmc
+#' @export merge SNF.static.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 merge.SNF.static.mcmc = function(x,y,...){
@@ -309,7 +309,7 @@ merge.SNF.static.mcmc = function(x,y,...){
 #'' @param ... not used
 #' @return A matrix
 #' @method getParameterMatrix SNF.static.mcmc
-#' @S3method getParameterMatrix SNF.static.mcmc
+#' @export getParameterMatrix SNF.static.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 getParameterMatrix.SNF.static.mcmc = function(x, tail, ...){
@@ -334,7 +334,7 @@ getParameterMatrix.SNF.static.mcmc = function(x, tail, ...){
 #' @param ... tail:  iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
 #' @return A summary table
 #' @method summary SNF.static.mcmc
-#' @S3method summary SNF.static.mcmc
+#' @export summary SNF.static.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 summary.SNF.static.mcmc = function(object,...){
@@ -349,7 +349,7 @@ summary.SNF.static.mcmc = function(object,...){
 #' @param ... not used
 #' @return A summary table
 #' @method summary SNF.static.maxLik
-#' @S3method summary SNF.static.maxLik
+#' @export summary SNF.static.maxLik
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 summary.SNF.static.maxLik = function(object,...){
@@ -2221,7 +2221,7 @@ SNF.dynamic.mcmc = function(m, data, last_estimation, update_tau=TRUE,tau=0.005)
 #'' @param ... not used
 #' @return A matrix
 #' @method getParameterMatrix SNF.dynamic.mcmc
-#' @S3method getParameterMatrix SNF.dynamic.mcmc
+#' @export getParameterMatrix SNF.dynamic.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 getParameterMatrix.SNF.dynamic.mcmc = function(x, tail, ...){
@@ -2246,7 +2246,7 @@ getParameterMatrix.SNF.dynamic.mcmc = function(x, tail, ...){
 #' @param ... not used
 #' @return A new SNF.dynamic.mcmc object
 #' @method merge SNF.dynamic.mcmc
-#' @S3method merge SNF.dynamic.mcmc
+#' @export merge SNF.dynamic.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 
@@ -2270,7 +2270,7 @@ merge.SNF.dynamic.mcmc = function(x,y,...){
 #' @param ... tail:  iteration to be used. Negative value: Removing the first \code{tail} iterations. Positive value: keep the last \code{tail} iterations. If -1< code{tail}< 1, it represent the percentage of iterations.
 #' @return A summary table
 #' @method summary SNF.dynamic.mcmc
-#' @S3method summary SNF.dynamic.mcmc
+#' @export summary SNF.dynamic.mcmc
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
 

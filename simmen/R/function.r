@@ -6,7 +6,7 @@ NULL
 
 #' Flexible version of tail
 #' @name extractTail
-#' @detail if  |x| < 1, x will be considered as a percentage, otherwise, it will be return tail(x,tail)
+#' @details if  |x| < 1, x will be considered as a percentage, otherwise, it will be return tail(x,tail)
 #' @aliases extractTail
 #' @title extractTail
 #' @param x x
@@ -29,7 +29,7 @@ extractTail = function(x, tail=0){
 #' @name computeSummaryTable
 #' @aliases computeSummaryTable
 #' @title computeSummaryTable
-#' @detail computeSummaryTable
+#' @details computeSummaryTable
 #' @param x x
 #' @param tail tail
 #' @return value
@@ -48,11 +48,38 @@ computeSummaryTable = function(x, tail){
   generateSignificance(out,name)
 }
 
+#' computeFittedValue
+#' @name computeFittedValue
+#' @aliases computeFittedValue
+#' @title computeFittedValue
+#' @details computeFittedValue
+#' @param x x
+#' @param data data
+#' @param ... ...
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+computeFittedValue = function(x,data,...) UseMethod("computeFittedValue", x)
+
+#' merge
+#' @name merge
+#' @aliases merge
+#' @title merge
+#' @details merge
+#' @param x x
+#' @param y y
+#' @param ... ...
+#' @return value
+#' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
+#' @export
+merge = function(x,y,...) UseMethod("merge", x)
+
+
 #' getParameterMatrix
 #' @name getParameterMatrix
 #' @aliases getParameterMatrix
 #' @title getParameterMatrix
-#' @detail getParameterMatrix
+#' @details getParameterMatrix
 #' @param x x
 #' @param ... ... 
 #' @return value
@@ -64,7 +91,7 @@ getParameterMatrix = function(x,...) UseMethod("getParameterMatrix", x)
 #' @name dnorm.diff
 #' @aliases dnorm.diff
 #' @title dnorm.diff
-#' @detail dnorm.diff
+#' @details dnorm.diff
 #' @param x x
 #' @param y y
 #' @param log logical. log density?
@@ -83,7 +110,7 @@ addStar = function(x){
 #' @name checkFolder
 #' @aliases checkFolder
 #' @title checkFolder
-#' @detail checkFolder
+#' @details checkFolder
 #' @param n n 
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
@@ -103,7 +130,7 @@ checkFolder = function(n=100){
 #' @name checkMaxFolder
 #' @aliases checkMaxFolder
 #' @title checkMaxFolder
-#' @detail checkMaxFolder
+#' @details checkMaxFolder
 #' @param n max integer for folder name
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
@@ -124,7 +151,7 @@ checkMaxFolder = function(n=20){
 #' @name commandArgsParser
 #' @aliases commandArgsParser
 #' @title commandArgsParser
-#' @detail This function will check whether the commandArgs contain "-ID". If it does, the argument will be return, if not, it will return the max folder number +1. that's mean if there is not argument, it will use a new folder used in beginning of runme.r to determine where to store the mcmc reuslt
+#' @details This function will check whether the commandArgs contain "-ID". If it does, the argument will be return, if not, it will return the max folder number +1. that's mean if there is not argument, it will use a new folder used in beginning of runme.r to determine where to store the mcmc reuslt
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
@@ -142,7 +169,7 @@ commandArgsParser = function(){
 #' @name genUniqueID
 #' @aliases genUniqueID
 #' @title genUniqueID
-#' @detail it depends on the time and a 8 digits random integer
+#' @details it depends on the time and a 8 digits random integer
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
 #' @export
@@ -154,7 +181,7 @@ genUniqueID = function(){
 #' @name betterTable
 #' @aliases betterTable
 #' @title betterTable
-#' @detail betterTable
+#' @details betterTable
 #' @param x x
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
@@ -171,7 +198,7 @@ betterTable = function(x){
 #' @name mergeTable
 #' @aliases mergeTable
 #' @title mergeTable
-#' @detail mergeTable
+#' @details mergeTable
 #' @param x x
 #' @param y y
 #' @param seperator seperator
@@ -212,7 +239,7 @@ mergeTable = function(x,y, seperator=c("friends_","studymates_"), title=c("Frien
 #' @name SplitTable
 #' @aliases SplitTable
 #' @title SplitTable
-#' @detail SplitTable
+#' @details SplitTable
 #' @param x x
 #' @param seperator seperator
 #' @param title title
@@ -236,7 +263,7 @@ SplitTable = function(x, seperator = c("friends_","studymates_"), title=c("Frien
 #' @name simpleMergeTable1
 #' @aliases simpleMergeTable1
 #' @title simpleMergeTable1
-#' @detail simpleMergeTable1
+#' @details simpleMergeTable1
 #' @param x x
 #' @param y y 
 #' @param colname colname
@@ -265,7 +292,7 @@ simpleMergeTable1 = function(x,y, colname=c("x","y")){
 #' @name my.rtnorm
 #' @aliases my.rtnorm
 #' @title my.rtnorm
-#' @detail truncated normal
+#' @details truncated normal
 #' @param mean mean
 #' @param sd sd
 #' @param a a 
@@ -308,7 +335,7 @@ my.rtnorm=function(mean=0,sd=1 , a, b){
 #' @name transform_e_by_each
 #' @aliases transform_e_by_each
 #' @title transform_e_by_each
-#' @detail abs(ei-ej)
+#' @details abs(ei-ej)
 #' @param data data
 #' @param e e
 #' @return value
@@ -326,7 +353,7 @@ transform_e_by_each = function(data,e){
 #' @name transform_e
 #' @aliases transform_e
 #' @title transform_e
-#' @detail transform_e
+#' @details transform_e
 #' @param data data
 #' @param e e
 #' @return value
@@ -344,7 +371,7 @@ transform_e =function(data,e){
 #' @name transform_e2
 #' @aliases transform_e2
 #' @title transform_e2
-#' @detail transform_e2
+#' @details transform_e2
 #' @param data data
 #' @param e e
 #' @return value
@@ -365,7 +392,7 @@ transform_e2 =function(data,e){
 #' @name genPoly
 #' @aliases genPoly
 #' @title genPoly
-#' @detail genPoly
+#' @details genPoly
 #' @param e_i e_i
 #' @param e_j e_j
 #' @param delta delta
@@ -382,7 +409,7 @@ genPoly = function(e_i,e_j,delta){
 #' @name genFulleByNetwork
 #' @aliases genFulleByNetwork
 #' @title genFulleByNetwork
-#' @detail genFulleByNetwork
+#' @details genFulleByNetwork
 #' @param data data
 #' @param e e 
 #' @return value
@@ -402,7 +429,7 @@ genFulleByNetwork = function(data,e){
 #' @name genFullGroupIndex
 #' @aliases genFullGroupIndex
 #' @title genFullGroupIndex
-#' @detail genFullGroupIndex
+#' @details genFullGroupIndex
 #' @param data data
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
@@ -424,7 +451,7 @@ genFullGroupIndex = function(data){
 #' @name genFullPositionIndex
 #' @aliases genFullPositionIndex
 #' @title genFullPositionIndex
-#' @detail genFullPositionIndex
+#' @details genFullPositionIndex
 #' @param  data data
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
@@ -442,7 +469,7 @@ genFullPositionIndex = function(data){
 #' @name genFullPositionMatrix
 #' @aliases genFullPositionMatrix
 #' @title genFullPositionMatrix
-#' @detail genFullPositionMatrix
+#' @details genFullPositionMatrix
 #' @param data data
 #' @return value
 #' @author TszKin Julian Chan \email{ctszkin@@gmail.com}
@@ -471,7 +498,7 @@ genFullPositionMatrix = function(data){
 #' @name updateTau
 #' @aliases updateTau
 #' @title updateTau
-#' @detail updateTau
+#' @details updateTau
 #' @param tau previous tau
 #' @param update_rate update rate of last estimation
 #' @param lower_bound update if the update_rate < lower_bound
@@ -500,7 +527,7 @@ updateTau = function(tau, update_rate, lower_bound=0.3, upper_bound=0.4, optim_r
 #' @name find_normal_conditional_dist
 #' @aliases find_normal_conditional_dist
 #' @title find_normal_conditional_dist
-#' @detail Conditional distribution of x1 given x2, where x1 and x2 are joint normal
+#' @details Conditional distribution of x1 given x2, where x1 and x2 are joint normal
 #' @param a mean 
 #' @param i index or location of x1
 #' @param j index or location of x2
@@ -526,7 +553,7 @@ find_normal_conditional_dist = function(a, i, j, Sigma){
 #' @name checkNewStart
 #' @aliases checkNewStart
 #' @title checkNewStart
-#' @detail checkNewStart
+#' @details checkNewStart
 #' @param command_args folder name
 #' @param create_dir logical. If the folder doesn't exist, create a new directory with name \code{command_args}
 #' @return value
